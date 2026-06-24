@@ -1,0 +1,47 @@
+:root {
+  /* Backgrounds */
+  --bg-base: oklch(13% 0.03 270);
+  --bg-surface: oklch(18% 0.025 265);
+  --bg-surface-2: oklch(23% 0.02 260);
+  --bg-glass: oklch(100% 0 0 / 0.03);
+
+  /* Text */
+  --text-primary: oklch(96% 0.01 120);
+  --text-secondary: oklch(78% 0.02 150);
+  --text-muted: oklch(62% 0.025 160);
+  --text-meta: oklch(70% 0.02 155);
+
+  /* Acento principal: Verde UNAHUR */
+  --green: oklch(62% 0.18 145);
+  --green-light: oklch(72% 0.16 145);
+  --green-dim: oklch(40% 0.12 145);
+
+  /* Acento secundario: Cyan */
+  --cyan: oklch(74% 0.14 210);
+  --cyan-light: oklch(82% 0.12 210);
+
+  /* Estados */
+  --red: #ef4444;
+  --emerald: #34d399;
+  --amber: #f59e0b;
+
+  /* Bordes */
+  --border: oklch(100% 0 0 / 0.07);
+  --border-hover: oklch(100% 0 0 / 0.14);
+  --border-green: oklch(62% 0.18 145 / 0.35);
+
+  /* Glows */
+  --glow-green: 0 0 24px oklch(62% 0.18 145 / 0.45);
+  --glow-cyan: 0 0 20px oklch(74% 0.14 210 / 0.35);
+  --shadow-card: 0 14px 35px oklch(0% 0 0 / 0.5);
+
+  /* Radius */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.25rem;
+
+  /* Motion */
+  --ease-out-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: 160ms var(--ease-out-smooth);
+  --transition-base: 240ms var(--ease-out-smooth);
+}

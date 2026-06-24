@@ -1,0 +1,25 @@
+{
+  "name": "Anti-Social Net — UNAHUR",
+  "short_name": "AntiSocial",
+  "description": "La red social para los que prefieren el terminal",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0f0f14",
+  "theme_color": "#0f0f14",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-touch-icon.svg",
+      "sizes": "180x180",
+      "type": "image/svg+xml",
+      "purpose": "maskable any"
+    }
+  ]
+}
