@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Hash, Search, User } from 'lucide-react';
+import { GlitchLink, GlitchText } from '../ui/GlitchText';
 import { searchAll } from '../../utils/search';
 
 interface SearchBarProps {
@@ -72,19 +73,23 @@ export function SearchBar({ className = '', onNavigate }: SearchBarProps) {
               {results!.users.length > 0 && (
                 <ResultSection title="usuarios">
                   {results!.users.map((u) => (
-                    <Link
+                    <div
                       key={u.id}
-                      to={`/usuario/${u.nickName}`}
-                      onClick={() => {
-                        setOpen(false);
-                        setQuery('');
-                        onNavigate?.();
-                      }}
                       className="flex items-center gap-2 px-4 py-2.5 transition-colors hover:bg-[var(--bg-glass)]"
                     >
                       <User size={14} className="text-[var(--green)]" />
-                      <span className="font-mono text-xs text-[var(--cyan)]">@{u.nickName}</span>
-                    </Link>
+                      <GlitchLink
+                        to={`/usuario/${u.nickName}`}
+                        onClick={() => {
+                          setOpen(false);
+                          setQuery('');
+                          onNavigate?.();
+                        }}
+                        className="font-mono text-xs text-[var(--cyan)]"
+                      >
+                        @{u.nickName}
+                      </GlitchLink>
+                    </div>
                   ))}
                 </ResultSection>
               )}
@@ -102,7 +107,9 @@ export function SearchBar({ className = '', onNavigate }: SearchBarProps) {
                       className="flex items-center gap-2 px-4 py-2.5 transition-colors hover:bg-[var(--bg-glass)]"
                     >
                       <Hash size={14} className="text-[var(--amber)]" />
-                      <span className="font-mono text-xs text-[var(--text-secondary)]">{t.name}</span>
+                      <GlitchText className="font-mono text-xs text-[var(--text-secondary)]">
+                        {t.name}
+                      </GlitchText>
                     </Link>
                   ))}
                 </ResultSection>
@@ -124,7 +131,7 @@ export function SearchBar({ className = '', onNavigate }: SearchBarProps) {
                         {p.description}
                       </p>
                       <p className="mt-0.5 font-mono text-[0.6rem] text-[var(--text-muted)]">
-                        @{p.user?.nickName}
+                        <GlitchText>@{p.user?.nickName}</GlitchText>
                       </p>
                     </Link>
                   ))}

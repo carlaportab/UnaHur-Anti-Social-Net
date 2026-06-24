@@ -29,13 +29,16 @@ export function Register() {
   };
 
   return (
-    <div className="auth-page dot-grid-dark">
+    <div className="auth-page dot-grid-auth">
       <div className="auth-card glass-card pulse-card animate-fade-up">
         <div className="mb-6 text-center sm:mb-8">
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-[var(--radius-sm)] bg-[var(--green)] font-display text-xl font-black text-[var(--bg-base)] shadow-[var(--glow-green)]">
               A
             </div>
-            <GlitchText as="h1" className="font-display text-xl font-bold tracking-wider">
+            <GlitchText
+              as="h1"
+              className="font-display text-xl font-bold tracking-widest text-[var(--text-primary)]"
+            >
               REGISTRO
             </GlitchText>
             <p className="mt-2 text-sm text-[var(--text-muted)]">
@@ -108,8 +111,8 @@ export function Register() {
                       setPassword(e.target.value);
                       setErrors((prev) => ({ ...prev, password: false }));
                     }}
-                    placeholder="123456"
-                    className={`input-field pl-10 text-base sm:text-sm ${errors.password ? 'input-error' : ''}`}
+                    placeholder="// contraseña universal"
+                    className={`input-field pl-11 text-base sm:text-sm ${errors.password ? 'input-error' : ''}`}
                   />
                 </div>
               </div>

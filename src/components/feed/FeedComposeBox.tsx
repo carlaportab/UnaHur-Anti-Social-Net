@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { GlitchLink } from '../ui/GlitchText';
 import { useAuth } from '../../context/AuthContext';
 import { useUi } from '../../context/UiContext';
 import { UserAvatar } from '../ui/UserAvatar';
@@ -26,9 +26,9 @@ export function FeedComposeBox({ onPost }: FeedComposeBoxProps) {
       <div className={`feed-compose-box ${terminalMode ? 'feed-compose-box--terminal' : ''}`}>
         <p className="font-mono text-xs text-[var(--text-meta)]">
           {terminalMode ? '> auth required — ' : ''}
-          <Link to="/login" className="text-[var(--green-light)] hover:underline">
+          <GlitchLink to="/login" className="text-[var(--green-light)]">
             {terminalMode ? 'login()' : 'Iniciá sesión'}
-          </Link>
+          </GlitchLink>
           {terminalMode ? '' : ' para publicar'}
         </p>
       </div>

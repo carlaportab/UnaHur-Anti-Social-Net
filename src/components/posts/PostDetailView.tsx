@@ -118,8 +118,8 @@ export function PostDetailView({
                   )}
                   <LazyImage
                     src={img}
-                    wrapperClassName={`post-detail-media-frame h-[220px] sm:h-[260px] ${terminalMode ? 'post-terminal-media-frame' : ''}`}
-                    className={`h-[220px] w-full object-cover sm:h-[260px] ${terminalMode ? 'post-terminal-media-img' : ''}`}
+                    wrapperClassName={`post-detail-media-frame h-[300px] max-h-[300px] ${terminalMode ? 'post-terminal-media-frame' : ''}`}
+                    className={`post-detail-media-img h-[300px] max-h-[300px] w-full rounded-lg object-cover ${terminalMode ? 'post-terminal-media-img' : ''}`}
                   />
                 </div>
               ))}

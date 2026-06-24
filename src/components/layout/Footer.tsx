@@ -1,4 +1,5 @@
 import { ExternalLink } from 'lucide-react';
+import { GlitchText } from '../ui/GlitchText';
 
 interface FooterProps {
   className?: string;
@@ -12,7 +13,7 @@ export function Footer({ className = '', variant = 'full' }: FooterProps) {
         className={`mobile-footer-strip border-t border-[var(--border)] bg-[var(--bg-surface)]/90 py-2.5 backdrop-blur-sm ${className}`}
       >
         <p className="text-center font-mono text-[0.6rem] text-[var(--text-meta)]">
-          UNAHUR · Anti-Social Net · © {new Date().getFullYear()}
+          UNAHUR · <GlitchText>Anti-Social Net</GlitchText> · © {new Date().getFullYear()}
         </p>
       </footer>
     );
@@ -24,15 +25,21 @@ export function Footer({ className = '', variant = 'full' }: FooterProps) {
         <div className="flex flex-col items-center gap-6 text-center md:flex-row md:justify-between md:text-left">
           <div>
             <div className="mb-2 flex items-center justify-center gap-2 md:justify-start">
-              <div className="flex h-8 w-8 items-center justify-center rounded bg-[var(--green-dim)] font-display text-xs font-bold text-[var(--green-light)]">
-                U
+              <div className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] bg-[var(--green)] font-display text-xs font-black text-[var(--bg-base)] shadow-[var(--glow-green)]">
+                A
               </div>
-              <span className="text-sm font-semibold text-[var(--text-secondary)]">
-                Universidad Nacional de Hurlingham
-              </span>
+              <div className="leading-tight text-left">
+                <span className="block text-sm font-semibold text-[var(--text-secondary)]">
+                  Anti-Social Net
+                </span>
+                <span className="block font-mono text-[0.6rem] text-[var(--text-muted)]">
+                  by UNAHUR
+                </span>
+              </div>
             </div>
             <p className="max-w-md font-mono text-xs text-[var(--text-meta)]">
-              Anti-Social Net — Porque a veces el código es suficiente compañía
+              <GlitchText className="text-[var(--text-secondary)]">Anti-Social Net</GlitchText>
+              {' — Porque a veces el código es suficiente compañía'}
             </p>
           </div>
 

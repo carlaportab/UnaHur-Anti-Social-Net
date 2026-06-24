@@ -4,15 +4,11 @@ import { PostFeedItem } from '../components/posts/PostFeedItem';
 import { FeedLayout } from '../components/feed/FeedLayout';
 import { EmptyState } from '../components/ui/EmptyState';
 import { filterPostsByTag, mockTags } from '../data/mockData';
-import { useTypingText } from '../hooks/useReducedMotion';
 import { GlitchText } from '../components/ui/GlitchText';
-
-const SUBTITLE = '// Descubrí posts por etiqueta. O scrolleá sin pensar.';
 
 export function Explore() {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTag = searchParams.get('tag');
-  const typedText = useTypingText(SUBTITLE, 30);
 
   const posts = useMemo(() => filterPostsByTag(activeTag), [activeTag]);
 
@@ -30,8 +26,8 @@ export function Explore() {
         >
           EXPLORAR
         </GlitchText>
-        <p className="typing-cursor animate-fade-up mb-4 font-mono text-xs text-[var(--cyan)] sm:text-sm">
-          {typedText}
+        <p className="animate-fade-up mb-4 font-mono text-xs text-[var(--cyan)] sm:text-sm">
+          {'// navegá por todos los posts o filtrá por etiqueta'}
         </p>
 
         <div className="tags-scroll-wrap sticky-tags mb-4 -mx-3 sm:mx-0">
@@ -45,7 +41,7 @@ export function Explore() {
                   : 'border-[var(--border)] bg-[var(--bg-surface-2)] text-[var(--text-meta)] hover:border-[var(--border-hover)] hover:text-[var(--text-secondary)]'
               }`}
             >
-              #todos
+              <GlitchText>#todos</GlitchText>
             </button>
             {mockTags.map((tag) => (
               <button
@@ -58,7 +54,7 @@ export function Explore() {
                     : 'border-[var(--border)] bg-[var(--bg-surface-2)] text-[var(--text-meta)] hover:border-[var(--border-hover)] hover:text-[var(--text-secondary)]'
                 }`}
               >
-                {tag.name}
+                <GlitchText>{tag.name}</GlitchText>
               </button>
             ))}
           </div>
@@ -82,6 +78,7 @@ export function Explore() {
               <PostFeedItem
                 key={post.id}
                 post={post}
+                variant="feed"
                 className={`animate-fade-up stagger-${Math.min(i + 1, 6)}`}
               />
             ))}

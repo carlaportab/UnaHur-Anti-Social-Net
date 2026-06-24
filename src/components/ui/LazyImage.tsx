@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { ImageOff } from 'lucide-react';
 
 interface LazyImageProps {
   src: string;
   alt?: string;
   className?: string;
   wrapperClassName?: string;
+  fallbackLabel?: string;
 }
 
 export function LazyImage({
@@ -13,6 +13,7 @@ export function LazyImage({
   alt = '',
   className = '',
   wrapperClassName = '',
+  fallbackLabel = '// sin imagen',
 }: LazyImageProps) {
   const imgRef = useRef<HTMLImageElement>(null);
   const [loaded, setLoaded] = useState(false);
@@ -41,9 +42,10 @@ export function LazyImage({
         <div className="absolute inset-0 animate-shimmer" aria-hidden />
       )}
       {error ? (
-        <div className="flex min-h-[8rem] w-full flex-col items-center justify-center gap-2 p-4">
-          <ImageOff size={20} className="text-[var(--text-muted)]" />
-          <span className="font-mono text-[0.65rem] text-[var(--text-muted)]">img load error</span>
+        <div className="flex h-full min-h-[150px] w-full flex-col items-center justify-center gap-1 bg-[var(--bg-surface)] p-4">
+          <span className="font-mono text-[0.65rem] text-[var(--text-muted)]">
+            {fallbackLabel}
+          </span>
         </div>
       ) : (
         <img

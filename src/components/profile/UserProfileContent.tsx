@@ -1,3 +1,4 @@
+import { GlitchText } from '../ui/GlitchText';
 import { PostFeedItem } from '../posts/PostFeedItem';
 import { ProfileHeader } from './ProfileHeader';
 import { EmptyState } from '../ui/EmptyState';
@@ -36,7 +37,10 @@ export function UserProfileContent({
           onFollow={handleFollow}
         />
 
-        <h2 className="animate-fade-up mb-1 font-mono text-sm text-[var(--green-light)]">
+        <GlitchText
+          as="h2"
+          className="animate-fade-up mb-1 font-mono text-sm text-[var(--green-light)]"
+        >
           {terminalMode
             ? isOwnProfile
               ? '> ls ~/posts/'
@@ -44,7 +48,7 @@ export function UserProfileContent({
             : isOwnProfile
               ? '> mis publicaciones'
               : `> publicaciones de @${user.nickName}`}
-        </h2>
+        </GlitchText>
         <p className="animate-fade-up mb-4 font-mono text-[0.65rem] text-[var(--text-meta)]">
           {userPosts.length === 0
             ? terminalMode

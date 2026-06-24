@@ -47,9 +47,9 @@ export function Search() {
 
             {results.users.length > 0 && (
               <section className="mb-8">
-                <h2 className="mb-3 font-mono text-sm text-[var(--green-light)]">
+                <GlitchText as="h2" className="mb-3 font-mono text-sm text-[var(--green-light)]">
                   {'> usuarios'}
-                </h2>
+                </GlitchText>
                 {terminalMode ? (
                   <div className="terminal-panel space-y-1 p-3 font-mono text-xs sm:text-sm">
                     {results.users.map((u) => (
@@ -92,7 +92,9 @@ export function Search() {
 
             {results.tags.length > 0 && (
               <section className="mb-8">
-                <h2 className="mb-3 font-mono text-sm text-[var(--green-light)]">{'> tags'}</h2>
+                <GlitchText as="h2" className="mb-3 font-mono text-sm text-[var(--green-light)]">
+                  {'> tags'}
+                </GlitchText>
                 {terminalMode ? (
                   <div className="terminal-panel flex flex-wrap gap-3 p-3 font-mono text-xs">
                     {results.tags.map((t) => (
@@ -101,7 +103,7 @@ export function Search() {
                         to={`/explorar?tag=${encodeURIComponent(t.name)}`}
                         className="text-[var(--cyan)] hover:text-[var(--cyan-light)]"
                       >
-                        {t.name}
+                        <GlitchText>{t.name}</GlitchText>
                       </Link>
                     ))}
                   </div>
@@ -113,7 +115,7 @@ export function Search() {
                         to={`/explorar?tag=${encodeURIComponent(t.name)}`}
                         className="rounded-full border border-[var(--border-green)] bg-[var(--green-dim)]/30 px-4 py-2 font-mono text-xs font-semibold text-[var(--green-light)]"
                       >
-                        {t.name}
+                        <GlitchText>{t.name}</GlitchText>
                       </Link>
                     ))}
                   </div>
@@ -123,7 +125,9 @@ export function Search() {
 
             {results.posts.length > 0 && (
               <section>
-                <h2 className="mb-3 font-mono text-sm text-[var(--green-light)]">{'> posts'}</h2>
+                <GlitchText as="h2" className="mb-3 font-mono text-sm text-[var(--green-light)]">
+                  {'> posts'}
+                </GlitchText>
                 <div className="timeline-feed">
                   {results.posts.map((post) => (
                     <PostFeedItem

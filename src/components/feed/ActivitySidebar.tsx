@@ -42,7 +42,7 @@ export function ActivitySidebar({ className = '' }: ActivitySidebarProps) {
               to={`/explorar?tag=${encodeURIComponent(tag.name)}`}
               className="rounded-full border border-[var(--border)] bg-[var(--bg-surface-2)] px-2.5 py-1 font-mono text-[0.65rem] font-semibold text-[var(--cyan-light)] transition-colors hover:border-[var(--border-green)]"
             >
-              {tag.name}
+              <GlitchText>{tag.name}</GlitchText>
             </Link>
           ))}
         </div>
@@ -95,9 +95,9 @@ export function ActivitySidebar({ className = '' }: ActivitySidebarProps) {
 function Widget({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-surface)] p-4">
-      <h3 className="mb-3 font-mono text-xs font-semibold text-[var(--green-light)]">
+      <GlitchText as="h3" className="mb-3 font-mono text-xs font-semibold text-[var(--green-light)]">
         {'> '}{title}
-      </h3>
+      </GlitchText>
       {children}
     </div>
   );

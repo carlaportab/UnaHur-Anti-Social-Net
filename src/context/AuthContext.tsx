@@ -12,7 +12,9 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(
+    import.meta.env.DEV ? mockUsers[0] : null,
+  );
 
   const login = (nickName: string): boolean => {
     const found = mockUsers.find(

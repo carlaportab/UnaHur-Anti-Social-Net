@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { GlitchLink } from '../ui/GlitchText';
 import type { Comment } from '../../types';
 import { UserAvatar } from '../ui/UserAvatar';
 import { getUserAccentColor } from '../../utils/userAccent';
@@ -34,13 +35,13 @@ export function PostInlineComments({ postId, comments, totalCount }: PostInlineC
           return (
             <div key={comment.id} className="post-terminal-comment-line font-mono text-[0.6875rem]">
               <span className="text-[var(--green-dim)]">└─</span>{' '}
-              <Link
+              <GlitchLink
                 to={`/usuario/${nick}`}
-                className="font-semibold hover:underline"
+                className="font-semibold"
                 style={{ color: getUserAccentColor(nick) }}
               >
                 @{nick}
-              </Link>
+              </GlitchLink>
               <span className="text-[var(--text-muted)]">: </span>
               <span className="text-[var(--text-secondary)]">{comment.content}</span>
             </div>
@@ -76,13 +77,13 @@ export function PostInlineComments({ postId, comments, totalCount }: PostInlineC
               <UserAvatar nickName={nick} size="xs" showOnline={false} />
             </Link>
             <div className="post-inline-comment-bubble">
-              <Link
+              <GlitchLink
                 to={`/usuario/${nick}`}
-                className="font-mono font-semibold hover:underline"
+                className="font-mono font-semibold"
                 style={{ color: getUserAccentColor(nick) }}
               >
                 @{nick}
-              </Link>
+              </GlitchLink>
               <span className="post-inline-comment-text"> {comment.content}</span>
             </div>
           </div>

@@ -11,7 +11,7 @@ import { mockPosts, mockTags } from '../data/mockData';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { useTypingText } from '../hooks/useReducedMotion';
-import { GlitchText } from '../components/ui/GlitchText';
+import { GlitchLink, GlitchText } from '../components/ui/GlitchText';
 import { useUi } from '../context/UiContext';
 import type { Post } from '../types';
 
@@ -96,14 +96,24 @@ export function Home() {
               {terminalMode ? (
                 <>
                   {'> whoami → '}
-                  <span className="text-[var(--green-light)]">@{user?.nickName}</span>
+                  <GlitchLink
+                    to={`/usuario/${user?.nickName}`}
+                    className="text-[var(--green-light)]"
+                  >
+                    @{user?.nickName}
+                  </GlitchLink>
                   {' · '}
-                  <span className="text-[var(--cyan)]">session restored</span>
+                  <GlitchText className="text-[var(--cyan)]">session restored</GlitchText>
                 </>
               ) : (
                 <>
                   {'> Bienvenide de vuelta, '}
-                  <span className="text-[var(--green-light)]">@{user?.nickName}</span>
+                  <GlitchLink
+                    to={`/usuario/${user?.nickName}`}
+                    className="text-[var(--green-light)]"
+                  >
+                    @{user?.nickName}
+                  </GlitchLink>
                   {' — tu feed te extrañó. Mentira.'}
                 </>
               )}
@@ -114,9 +124,12 @@ export function Home() {
 
       <FeedLayout>
         <div id="feed">
-          <h2 className="animate-fade-up mb-4 font-mono text-sm text-[var(--green-light)]">
+          <GlitchText
+            as="h2"
+            className="animate-fade-up mb-4 font-mono text-sm text-[var(--green-light)]"
+          >
             {terminalMode ? '> tail -f /var/log/timeline' : '> timeline'}
-          </h2>
+          </GlitchText>
 
           {loading ? (
             <div

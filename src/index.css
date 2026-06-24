@@ -150,6 +150,16 @@ body {
   background-size: 28px 28px;
 }
 
+/* Auth pages — dot grid más tenue que el hero */
+.dot-grid-auth {
+  background-image: radial-gradient(
+    circle,
+    oklch(62% 0.18 145 / 0.06) 1px,
+    transparent 1px
+  );
+  background-size: 28px 28px;
+}
+
 .glitch-hover,
 .glitch-title {
   position: relative;
@@ -158,8 +168,12 @@ body {
 
 .glitch-hover:hover::before,
 .glitch-hover:hover::after,
+.glitch-hover:active::before,
+.glitch-hover:active::after,
 .glitch-title:hover::before,
-.glitch-title:hover::after {
+.glitch-title:hover::after,
+.glitch-title:active::before,
+.glitch-title:active::after {
   content: attr(data-text);
   position: absolute;
   inset: 0;
@@ -167,16 +181,30 @@ body {
 }
 
 .glitch-hover:hover::before,
-.glitch-title:hover::before {
+.glitch-hover:active::before,
+.glitch-title:hover::before,
+.glitch-title:active::before {
   color: var(--cyan);
   z-index: -1;
 }
 
 .glitch-hover:hover::after,
-.glitch-title:hover::after {
+.glitch-hover:active::after,
+.glitch-title:hover::after,
+.glitch-title:active::after {
   color: var(--green);
   z-index: -2;
   animation-delay: 0.1s;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .glitch-hover:active::before,
+  .glitch-hover:active::after,
+  .glitch-title:active::before,
+  .glitch-title:active::after {
+    content: none;
+    animation: none;
+  }
 }
 
 .typing-cursor::after {
@@ -645,6 +673,7 @@ body {
   min-height: calc(100dvh - 3.5rem);
   padding: 1.5rem 1.25rem calc(5.5rem + env(safe-area-inset-bottom, 0px));
   border-radius: 0;
+  border: 1px solid oklch(62% 0.18 145 / 0.2);
   border-left: none;
   border-right: none;
 }
@@ -654,7 +683,7 @@ body {
     min-height: auto;
     padding: 2rem;
     border-radius: var(--radius-lg);
-    border: 1px solid var(--border);
+    border: 1px solid oklch(62% 0.18 145 / 0.2);
   }
 }
 
@@ -662,7 +691,7 @@ body {
 .lazy-image-wrap img {
   display: block;
   width: 100%;
-  height: auto;
+  max-height: 100%;
 }
 
 /* Profile */
@@ -900,6 +929,28 @@ body {
   overflow: hidden;
 }
 
+@media (min-width: 768px) {
+  .post-detail-thread {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .post-detail-post {
+    border-bottom: none;
+    border-right: 1px solid oklch(100% 0 0 / 0.08);
+  }
+
+  .post-detail-comments-panel {
+    min-height: 100%;
+    border-left: none;
+  }
+
+  .terminal-mode .post-detail-thread--terminal .post-detail-post {
+    border-right-color: oklch(62% 0.18 145 / 0.2);
+  }
+}
+
 .post-detail-post {
   border-bottom: 1px solid oklch(100% 0 0 / 0.08);
 }
@@ -927,12 +978,21 @@ body {
 }
 
 .post-detail-media {
-  border-radius: 10px;
+  border-radius: 8px;
   border: 1px solid oklch(100% 0 0 / 0.1);
+  overflow: hidden;
 }
 
 .post-detail-media-frame {
-  border-radius: 10px;
+  border-radius: 8px;
+  max-height: 300px;
+}
+
+.post-detail-media-frame img,
+.post-detail-media-img {
+  max-height: 300px;
+  border-radius: 8px;
+  object-fit: cover;
 }
 
 .post-detail-comments-panel {
@@ -946,19 +1006,75 @@ body {
   font-size: 0.8125rem;
 }
 
-.post-detail-comment-form {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.post-detail-comment-form .post-inline-comment-input {
-  min-width: 0;
-  flex: 1;
-}
-
 .post-detail-comment-submit {
   transition: opacity var(--transition-fast);
+}
+
+.post-detail-comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.post-detail-comment {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.post-detail-comment-bubble {
+  min-width: 0;
+  flex: 1;
+  border-radius: 0 8px 8px 8px;
+  background: oklch(100% 0 0 / 0.04);
+  padding: 0.5rem 0.75rem;
+}
+
+.post-detail-comment-body {
+  margin-top: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+.post-detail-comment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.post-detail-comment-form-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.post-detail-comment-textarea {
+  min-width: 0;
+  flex: 1;
+  resize: vertical;
+  min-height: 4.5rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid oklch(100% 0 0 / 0.08);
+  background: oklch(100% 0 0 / 0.04);
+  padding: 0.625rem 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.post-detail-comment-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.post-detail-comment-textarea:focus {
+  outline: none;
+  border-color: var(--border-green);
+  box-shadow: var(--glow-green);
 }
 
 /* Terminal thread */
@@ -998,13 +1114,11 @@ body {
   .post-detail-body-text {
     font-size: 0.9375rem;
   }
+}
 
-  .post-detail-comment-form {
-    flex-wrap: wrap;
-  }
-
-  .post-detail-comment-submit {
-    width: 100%;
+@media (min-width: 768px) {
+  .post-detail-page {
+    max-width: 72rem;
   }
 }
 
@@ -1026,8 +1140,12 @@ body {
 
   .glitch-hover:hover::before,
   .glitch-hover:hover::after,
+  .glitch-hover:active::before,
+  .glitch-hover:active::after,
   .glitch-title:hover::before,
-  .glitch-title:hover::after {
+  .glitch-title:hover::after,
+  .glitch-title:active::before,
+  .glitch-title:active::after {
     animation: none !important;
     content: none;
   }
@@ -1044,7 +1162,8 @@ body {
   .page-enter,
   .animate-fade-up,
   .toast-item,
-  .notif-sheet {
+  .notif-sheet,
+  .notif-sheet-backdrop {
     animation: none;
   }
 }
@@ -1071,9 +1190,26 @@ body {
   box-shadow: var(--glow-green);
 }
 
-/* Notification bottom sheet (mobile) */
+/* Notification bottom sheet (mobile) — portaled to body */
+.notif-sheet-backdrop {
+  animation: notifBackdropIn 0.22s var(--ease-out-smooth) both;
+}
+
 .notif-sheet {
-  animation: sheetSlideUp 0.32s var(--ease-out-smooth) both;
+  animation: sheetSlideUp 0.34s var(--ease-out-smooth) both;
+}
+
+.notif-sheet-list {
+  -webkit-overflow-scrolling: touch;
+}
+
+@keyframes notifBackdropIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes sheetSlideUp {

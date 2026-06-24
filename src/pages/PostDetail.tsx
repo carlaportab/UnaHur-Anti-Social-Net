@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { GlitchText } from '../components/ui/GlitchText';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { PostDetailView } from '../components/posts/PostDetailView';
@@ -38,19 +39,27 @@ export function PostDetail() {
     );
   };
 
-  return (
-    <div className="post-detail-page mx-auto max-w-[680px] px-3 py-4 sm:px-6 sm:py-6">
-      <Link
-        to="/"
-        className="animate-fade-up mb-4 inline-flex min-h-[44px] items-center gap-2 font-mono text-sm text-[var(--text-muted)] transition-colors hover:text-[var(--green-light)]"
-      >
-        <ArrowLeft size={16} />
-        {terminalMode ? 'cd ../feed' : 'volver al feed'}
-      </Link>
+  const postLabel = terminalMode ? `> cat post/${post.id}` : `> post/${post.id}`;
 
-      <h1 className="animate-fade-up mb-1 font-mono text-sm text-[var(--green-light)]">
-        {terminalMode ? `> cat post/${post.id}` : `> post/${post.id}`}
-      </h1>
+  return (
+    <div className="post-detail-page mx-auto max-w-[680px] px-3 py-4 md:max-w-6xl sm:px-6 sm:py-6">
+      <nav
+        aria-label="Navegación del post"
+        className="animate-fade-up mb-1 flex min-h-[44px] flex-wrap items-center gap-x-2 gap-y-1 font-mono text-sm"
+      >
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 text-[var(--text-muted)] transition-colors hover:text-[var(--green-light)]"
+        >
+          <ArrowLeft size={16} />
+          {terminalMode ? 'cd ../feed' : 'volver al feed'}
+        </Link>
+        <span className="text-[var(--text-meta)]" aria-hidden>
+          ›
+        </span>
+        <GlitchText className="text-[var(--green-light)]">{postLabel}</GlitchText>
+      </nav>
+
       <p className="animate-fade-up mb-4 font-mono text-[0.65rem] text-[var(--text-meta)]">
         {terminalMode
           ? '// thread_view — hilo completo con replies'

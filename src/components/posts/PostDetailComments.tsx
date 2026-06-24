@@ -53,23 +53,23 @@ export function PostDetailComments({
           })}
         </div>
       ) : (
-        <div className="post-detail-comments-list mb-4 space-y-2">
+        <div className="post-detail-comments-list mb-4">
           {comments.map((comment) => {
             const nick = comment.user?.nickName ?? 'anon';
             return (
-              <div key={comment.id} className="post-inline-comment">
+              <div key={comment.id} className="post-detail-comment">
                 <Link to={`/usuario/${nick}`} className="shrink-0">
-                  <UserAvatar nickName={nick} size="xs" showOnline={false} />
+                  <UserAvatar nickName={nick} size="sm" showOnline={false} />
                 </Link>
-                <div className="post-inline-comment-bubble">
+                <div className="post-detail-comment-bubble">
                   <Link
                     to={`/usuario/${nick}`}
-                    className="font-mono font-semibold hover:underline"
+                    className="font-mono text-sm font-semibold hover:underline"
                     style={{ color: getUserAccentColor(nick) }}
                   >
                     @{nick}
                   </Link>
-                  <span className="post-inline-comment-text"> {comment.content}</span>
+                  <p className="post-detail-comment-body">{comment.content}</p>
                 </div>
               </div>
             );
@@ -98,27 +98,32 @@ export function PostDetailComments({
           </form>
         ) : (
           <form onSubmit={onSubmit} className="post-detail-comment-form">
-            <UserAvatar nickName={user.nickName} size="xs" showOnline={false} />
-            <input
-              type="text"
-              value={newComment}
-              onChange={(e) => onCommentChange(e.target.value)}
-              placeholder="// comentá algo..."
-              className="post-inline-comment-input font-mono"
-            />
+            <div className="post-detail-comment-form-row">
+              <UserAvatar nickName={user.nickName} size="sm" showOnline={false} />
+              <textarea
+                value={newComment}
+                onChange={(e) => onCommentChange(e.target.value)}
+                rows={3}
+                placeholder="// escribí tu comentario..."
+                className="post-detail-comment-textarea"
+              />
+            </div>
             <button
               type="submit"
               disabled={!newComment.trim()}
-              className="post-detail-comment-submit shrink-0 rounded-[var(--radius-sm)] bg-[var(--green)] px-3 py-1.5 font-mono text-xs font-semibold text-[var(--bg-base)] disabled:opacity-40"
+              className="post-detail-comment-submit self-end rounded-[var(--radius-sm)] bg-[var(--green)] px-4 py-2 font-mono text-xs font-semibold text-[var(--bg-base)] disabled:opacity-40"
             >
-              Enviar
+              Comentar
             </button>
           </form>
         )
       ) : (
         <p className="font-mono text-xs text-[var(--text-meta)]">
           {terminalMode ? '> auth required — ' : ''}
-          <Link to="/login" className="text-[var(--green-light)] hover:underline">
+          <Link
+            to="/login"
+            className="font-medium text-[var(--green-light)] transition-colors hover:text-[var(--green)]"
+          >
             {terminalMode ? 'login()' : 'Iniciá sesión'}
           </Link>
           {terminalMode ? '' : ' para comentar'}
