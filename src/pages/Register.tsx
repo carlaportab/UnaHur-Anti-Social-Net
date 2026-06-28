@@ -4,28 +4,57 @@ import { AtSign, Lock, Mail } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { GlitchText } from '../components/ui/GlitchText';
 import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
+import { createUser } from '../services/api';
 
 export function Register() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { login } = useAuth();
+
   const [nickName, setNickName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState({ nickName: false, password: false });
+  const [errors, setErrors] = useState({
+    nickName: false,
+    password: false,
+    server: '',   // mensaje de error que viene del backend
+  });
+  const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+
     const newErrors = {
       nickName: !nickName.trim(),
       password: !password.trim(),
+      server: '',
     };
     setErrors(newErrors);
     if (newErrors.nickName || newErrors.password) return;
 
-    setSuccess(true);
-    toast('Usuario creado. Bienvenide al lado oscuro.', 'success');
-    setTimeout(() => navigate('/login'), 2000);
+    setLoading(true);
+    try {
+      await createUser({ nickName: nickName.trim(), email: email.trim() });
+
+      setSuccess(true);
+      toast('Usuario creado. Bienvenide al lado oscuro.', 'success');
+
+      const result = await login(nickName.trim(), '123456');
+      if (result.ok) {
+        navigate('/perfil');
+      } else {
+        setTimeout(() => navigate('/login'), 1500);
+      }
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Error al crear el usuario';
+      setErrors((prev) => ({ ...prev, server: message }));
+      toast(message, 'error');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -68,17 +97,22 @@ export function Register() {
                     value={nickName}
                     onChange={(e) => {
                       setNickName(e.target.value);
-                      setErrors((prev) => ({ ...prev, nickName: false }));
+                      setErrors((prev) => ({ ...prev, nickName: false, server: '' }));
                     }}
                     placeholder="git_push_carla"
                     className={`input-field pl-10 text-base sm:text-sm ${errors.nickName ? 'input-error' : ''}`}
                   />
                 </div>
+                {errors.nickName && (
+                  <p className="mt-1 font-mono text-xs text-red-400">
+                    El nickName es obligatorio.
+                  </p>
+                )}
               </div>
 
               <div>
                 <label className="mb-1.5 block font-mono text-xs text-[var(--text-muted)]">
-                  email (opcional)
+                  email (requerido por el servidor)
                 </label>
                 <div className="relative">
                   <Mail
@@ -115,10 +149,22 @@ export function Register() {
                     className={`input-field pl-11 text-base sm:text-sm ${errors.password ? 'input-error' : ''}`}
                   />
                 </div>
+                {errors.password && (
+                  <p className="mt-1 font-mono text-xs text-red-400">
+                    La contraseña es obligatoria.
+                  </p>
+                )}
               </div>
 
-              <Button type="submit" className="w-full">
-                Crear cuenta
+              {/* Error que viene del servidor (ej: nickName ya existente) */}
+              {errors.server && (
+                <div className="rounded-[var(--radius-sm)] border border-red-500/40 bg-red-500/10 px-4 py-3 font-mono text-xs text-red-400">
+                  {errors.server}
+                </div>
+              )}
+
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? 'Creando cuenta...' : 'Crear cuenta'}
               </Button>
             </form>
           )}

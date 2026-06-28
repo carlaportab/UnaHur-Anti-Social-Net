@@ -13,8 +13,9 @@ export function Login() {
   const [nickName, setNickName] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({ nickName: false, password: false });
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const newErrors = {
       nickName: !nickName.trim(),
@@ -23,14 +24,12 @@ export function Login() {
     setErrors(newErrors);
     if (newErrors.nickName || newErrors.password) return;
 
-    if (password !== '123456') {
-      toast('Contraseña incorrecta. Hint: es la del TP.', 'error');
-      return;
-    }
+    setLoading(true);
+    const result = await login(nickName.trim(), password);
+    setLoading(false);
 
-    const ok = login(nickName.trim());
-    if (!ok) {
-      toast('Usuario no encontrado. ¿Te registraste?', 'error');
+    if (!result.ok) {
+      toast(result.error ?? 'Error al iniciar sesión.', 'error');
       return;
     }
 
@@ -105,8 +104,8 @@ export function Login() {
             Contraseña de acceso: <strong>123456</strong>
           </div>
 
-          <Button type="submit" className="w-full">
-            Iniciar sesión
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? 'Verificando...' : 'Iniciar sesión'}
           </Button>
         </form>
 
