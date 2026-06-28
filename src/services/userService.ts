@@ -18,7 +18,6 @@ export async function createUser(data: {
     body: JSON.stringify(data),
   });
 
-  // reelanza el mnsj
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error(body.error ?? 'No se pudo crear el usuario');

@@ -6,17 +6,15 @@ import {
   type ReactNode,
 } from 'react';
 import type { User } from '../types';
-import { getUsers } from '../services/api';
+import { getUsers } from '../services/userService';
+
 const LS_KEY = 'antisocial_user';
 const FIXED_PASSWORD = '123456';
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
-  login: (
-    nickName: string,
-    password: string,
-  ) => Promise<{ ok: boolean; error?: string }>;
+  login: (nickName: string, password: string) => Promise<{ ok: boolean; error?: string }>;
   logout: () => void;
 }
 
@@ -40,9 +38,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [user]);
 
-  /**
-   * Login simulado
-   */
   const login = async (
     nickName: string,
     password: string,
@@ -50,6 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (password !== FIXED_PASSWORD) {
       return { ok: false, error: 'Contraseña incorrecta. Hint: es la del TP.' };
     }
+
     let users: User[];
     try {
       users = await getUsers();
@@ -64,6 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!found) {
       return { ok: false, error: 'Usuario no encontrado. ¿Te registraste?' };
     }
+
     setUser(found);
     return { ok: true };
   };
@@ -71,14 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => setUser(null);
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isAuthenticated: user !== null,
-        login,
-        logout,
-      }}
-    >
+    <AuthContext.Provider value={{ user, isAuthenticated: user !== null, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

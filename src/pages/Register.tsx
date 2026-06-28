@@ -5,7 +5,7 @@ import { Button } from '../components/ui/Button';
 import { GlitchText } from '../components/ui/GlitchText';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
-import { createUser } from '../services/api';
+import { createUser } from '../services/userService';
 
 export function Register() {
   const navigate = useNavigate();
@@ -26,6 +26,7 @@ export function Register() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
+    // Validación local de campos requeridos
     const newErrors = {
       nickName: !nickName.trim(),
       password: !password.trim(),
@@ -36,18 +37,24 @@ export function Register() {
 
     setLoading(true);
     try {
+      // POST /users a la API real
       await createUser({ nickName: nickName.trim(), email: email.trim() });
 
       setSuccess(true);
       toast('Usuario creado. Bienvenide al lado oscuro.', 'success');
 
+      // Logueamos al usuario automáticamente luego del registro exitoso.
+      // La contraseña "123456" es la fija del sistema (no la que ingresó el usuario,
+      // ya que el backend no la almacena en este TP).
       const result = await login(nickName.trim(), '123456');
       if (result.ok) {
         navigate('/perfil');
       } else {
+        // Si el auto-login falla por alguna razón, mandamos al login manual
         setTimeout(() => navigate('/login'), 1500);
       }
     } catch (err) {
+      // El servidor devolvió un error (ej: nickName ya existe)
       const message =
         err instanceof Error ? err.message : 'Error al crear el usuario';
       setErrors((prev) => ({ ...prev, server: message }));
