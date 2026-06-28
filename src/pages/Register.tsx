@@ -25,8 +25,6 @@ export function Register() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-
-    // Validación local de campos requeridos
     const newErrors = {
       nickName: !nickName.trim(),
       password: !password.trim(),
@@ -37,20 +35,14 @@ export function Register() {
 
     setLoading(true);
     try {
-      // POST /users a la API real
       await createUser({ nickName: nickName.trim(), email: email.trim() });
 
       setSuccess(true);
       toast('Usuario creado. Bienvenide al lado oscuro.', 'success');
-
-      // Logueamos al usuario automáticamente luego del registro exitoso.
-      // La contraseña "123456" es la fija del sistema (no la que ingresó el usuario,
-      // ya que el backend no la almacena en este TP).
       const result = await login(nickName.trim(), '123456');
       if (result.ok) {
         navigate('/perfil');
       } else {
-        // Si el auto-login falla por alguna razón, mandamos al login manual
         setTimeout(() => navigate('/login'), 1500);
       }
     } catch (err) {

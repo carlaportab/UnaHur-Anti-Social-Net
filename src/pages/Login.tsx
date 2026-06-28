@@ -25,7 +25,6 @@ export function Login() {
     if (newErrors.nickName || newErrors.password) return;
 
     setLoading(true);
-    // login ahora es async y valida contraseña + consulta la API
     const result = await login(nickName.trim(), password);
     setLoading(false);
 
