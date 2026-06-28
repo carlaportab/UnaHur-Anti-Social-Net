@@ -1,43 +1,74 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  type ReactNode,
+} from 'react';
 import type { User } from '../types';
-import { mockUsers } from '../data/mockData';
+import { getUsers } from '../services/userService';
+
+const LS_KEY = 'antisocial_user';
+const FIXED_PASSWORD = '123456';
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
-  login: (nickName: string) => boolean;
+  login: (nickName: string, password: string) => Promise<{ ok: boolean; error?: string }>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(
-    import.meta.env.DEV ? mockUsers[0] : null,
-  );
-
-  const login = (nickName: string): boolean => {
-    const found = mockUsers.find(
-      (u) => u.nickName.toLowerCase() === nickName.toLowerCase(),
-    );
-    if (found) {
-      setUser(found);
-      return true;
+  const [user, setUser] = useState<User | null>(() => {
+    try {
+      const stored = localStorage.getItem(LS_KEY);
+      return stored ? (JSON.parse(stored) as User) : null;
+    } catch {
+      return null;
     }
-    return false;
+  });
+
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem(LS_KEY, JSON.stringify(user));
+    } else {
+      localStorage.removeItem(LS_KEY);
+    }
+  }, [user]);
+
+  const login = async (
+    nickName: string,
+    password: string,
+  ): Promise<{ ok: boolean; error?: string }> => {
+    if (password !== FIXED_PASSWORD) {
+      return { ok: false, error: 'Contraseña incorrecta. Hint: es la del TP.' };
+    }
+
+    let users: User[];
+    try {
+      users = await getUsers();
+    } catch {
+      return { ok: false, error: 'No se pudo conectar con el servidor.' };
+    }
+
+    const found = users.find(
+      (u) => u.nickName.toLowerCase() === nickName.trim().toLowerCase(),
+    );
+
+    if (!found) {
+      return { ok: false, error: 'Usuario no encontrado. ¿Te registraste?' };
+    }
+
+    setUser(found);
+    return { ok: true };
   };
 
   const logout = () => setUser(null);
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isAuthenticated: user !== null,
-        login,
-        logout,
-      }}
-    >
+    <AuthContext.Provider value={{ user, isAuthenticated: user !== null, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
