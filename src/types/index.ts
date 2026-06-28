@@ -2,7 +2,7 @@ export interface User {
   id: number;
   nickName: string;
   email?: string;
-  career?: string;
+  career?: string; // viene del archivo
 }
 
 export interface Tag {

@@ -46,7 +46,6 @@ export function Register() {
         setTimeout(() => navigate('/login'), 1500);
       }
     } catch (err) {
-      // El servidor devolvió un error (ej: nickName ya existe)
       const message =
         err instanceof Error ? err.message : 'Error al crear el usuario';
       setErrors((prev) => ({ ...prev, server: message }));
@@ -154,8 +153,6 @@ export function Register() {
                   </p>
                 )}
               </div>
-
-              {/* Error que viene del servidor (ej: nickName ya existente) */}
               {errors.server && (
                 <div className="rounded-[var(--radius-sm)] border border-red-500/40 bg-red-500/10 px-4 py-3 font-mono text-xs text-red-400">
                   {errors.server}
