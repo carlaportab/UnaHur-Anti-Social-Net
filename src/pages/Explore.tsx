@@ -1,16 +1,39 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { PostFeedItem } from '../components/posts/PostFeedItem';
+import { SkeletonPost } from '../components/ui/SkeletonCard';
 import { FeedLayout } from '../components/feed/FeedLayout';
 import { EmptyState } from '../components/ui/EmptyState';
-import { filterPostsByTag, mockTags } from '../data/mockData';
 import { GlitchText } from '../components/ui/GlitchText';
+import { getPosts, getTags } from '../services/postService';
+import type { Post, Tag } from '../types';
 
 export function Explore() {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTag = searchParams.get('tag');
 
-  const posts = useMemo(() => filterPostsByTag(activeTag), [activeTag]);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [tags, setTags] = useState<Tag[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    Promise.all([getPosts(), getTags()])
+      .then(([fetchedPosts, fetchedTags]) => {
+        setPosts(fetchedPosts);
+        setTags(fetchedTags);
+      })
+      .catch(() => setError('No se pudo cargar el contenido.'))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const filteredPosts = useMemo(() => {
+    if (!activeTag) return posts;
+    const normalized = activeTag.toLowerCase();
+    return posts.filter((p) =>
+      p.tags.some((t) => t.name.toLowerCase() === normalized),
+    );
+  }, [posts, activeTag]);
 
   const setTag = (tag: string | null) => {
     if (tag) setSearchParams({ tag });
@@ -43,7 +66,7 @@ export function Explore() {
             >
               <GlitchText>#todos</GlitchText>
             </button>
-            {mockTags.map((tag) => (
+            {tags.map((tag) => (
               <button
                 key={tag.id}
                 type="button"
@@ -60,13 +83,23 @@ export function Explore() {
           </div>
         </div>
 
-        <p className="mb-4 font-mono text-xs text-[var(--text-muted)]">
-          {activeTag
-            ? `> ${posts.length} resultados para ${activeTag}`
-            : `> ${posts.length} publicaciones en total`}
-        </p>
+        {!loading && !error && (
+          <p className="mb-4 font-mono text-xs text-[var(--text-muted)]">
+            {activeTag
+              ? `> ${filteredPosts.length} resultados para ${activeTag}`
+              : `> ${filteredPosts.length} publicaciones en total`}
+          </p>
+        )}
 
-        {posts.length === 0 ? (
+        {loading ? (
+          <div className="timeline-feed">
+            <SkeletonPost />
+            <SkeletonPost />
+            <SkeletonPost />
+          </div>
+        ) : error ? (
+          <EmptyState ascii="> error" title={error} />
+        ) : filteredPosts.length === 0 ? (
           <EmptyState ascii="> 0 results" title="Sin resultados. Probá otro tag.">
             <Link to="/" className="font-mono text-xs text-[var(--green-light)] hover:underline">
               volver al inicio
@@ -74,7 +107,7 @@ export function Explore() {
           </EmptyState>
         ) : (
           <div className="timeline-feed">
-            {posts.map((post, i) => (
+            {filteredPosts.map((post, i) => (
               <PostFeedItem
                 key={post.id}
                 post={post}
