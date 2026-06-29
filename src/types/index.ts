@@ -17,7 +17,7 @@ export interface Post {
   tags: Tag[];
   images?: string[];
   commentCount: number;
-  user?: User;
+  User?: User;
   createdAt: string;
   likes?: number;
 }
@@ -27,6 +27,6 @@ export interface Comment {
   content: string;
   postId: number;
   userId: number;
-  user?: User;
+  User?: User;
   visible: boolean;
 }
