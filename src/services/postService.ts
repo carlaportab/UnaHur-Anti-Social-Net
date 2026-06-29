@@ -12,7 +12,7 @@ export async function getPosts(userId?: number): Promise<Post[]> {
 export async function createPost(data: {
   description: string;
   userId: number;
-  tagsId?: number[];
+  tagIds?: number[];
 }): Promise<Post> {
   const res = await fetch(`${envs.BASE_URL}/posts`, {
     method: "POST",
