@@ -37,6 +37,8 @@ export function UserProfileContent({
         .finally(() => setLoading(false));
   }, [user.id]);
 
+  const totalLikes = userPosts.reduce((sum, p) => sum + (p.likes ?? 0), 0);
+
   const handleFollow = () => {
     toast(`Ahora seguís a @${user.nickName}. (mock, no pasa nada)`, 'info');
   };
@@ -47,6 +49,8 @@ export function UserProfileContent({
       isOwnProfile={isOwnProfile}
       onLogout={onLogout}
       onFollow={handleFollow}
+      postCount={userPosts.length}
+      totalLikes={totalLikes}
     />
   );
 
