@@ -1,11 +1,31 @@
 import { useParams } from 'react-router-dom';
-import { getUserByNickName } from '../data/mockData';
+import { useEffect, useState } from 'react';
+import { getUsers } from '../services/userService';
+import type { User } from '../types';
 import { UserProfileContent } from '../components/profile/UserProfileContent';
 import { ErrorPage } from '../components/ui/ErrorPage';
 
 export function UserProfile() {
   const { nickName } = useParams<{ nickName: string }>();
-  const profileUser = nickName ? getUserByNickName(nickName) : undefined;
+
+  const [profileUser, setProfileUser] = useState<User | undefined>(undefined);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!nickName) return;
+
+    getUsers()
+      .then((users) => {
+        const user = users.find((u) => u.nickName === nickName);
+        setProfileUser(user ?? undefined);
+      })
+      .catch(() => setProfileUser(undefined))
+      .finally(() => setLoading(false));
+  }, [nickName]);
+
+  if (loading) {
+    return <p>Cargando perfil...</p>;
+  }
 
   if (!profileUser) {
     return (
