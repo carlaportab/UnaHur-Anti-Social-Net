@@ -6,7 +6,10 @@ import { FeedLayout } from '../feed/FeedLayout';
 import { useToast } from '../../context/ToastContext';
 import { useUi } from '../../context/UiContext';
 import type { User } from '../../types';
-import { getPostsByUserId } from '../../data/mockData';
+import { useEffect, useState } from 'react';
+import { getPostsByUserId } from '../../services/postService';
+import { SkeletonPost } from '../ui/SkeletonCard';
+import type { Post } from '../../types';
 
 interface UserProfileContentProps {
   user: User;
@@ -21,21 +24,61 @@ export function UserProfileContent({
 }: UserProfileContentProps) {
   const { toast } = useToast();
   const { terminalMode } = useUi();
-  const userPosts = getPostsByUserId(user.id);
+  const [userPosts, setUserPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    setError(false);
+    getPostsByUserId(user.id)
+        .then(setUserPosts)
+        .catch(() => setError(true))
+        .finally(() => setLoading(false));
+  }, [user.id]);
 
   const handleFollow = () => {
     toast(`Ahora seguís a @${user.nickName}. (mock, no pasa nada)`, 'info');
   };
 
+  const profileHeader = (
+    <ProfileHeader
+      user={user}
+      isOwnProfile={isOwnProfile}
+      onLogout={onLogout}
+      onFollow={handleFollow}
+    />
+  );
+
+  if (loading) {
+    return (
+      <FeedLayout showSidebar={!isOwnProfile}>
+        <div>
+          {profileHeader}
+          <SkeletonPost />
+        </div>
+      </FeedLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <FeedLayout showSidebar={!isOwnProfile}>
+        <div>
+          {profileHeader}
+          <EmptyState
+            ascii={terminalMode ? '> error' : '> feed roto'}
+            title="No se pudieron cargar las publicaciones."
+          />
+        </div>
+      </FeedLayout>
+    );
+  }
+
   return (
     <FeedLayout showSidebar={!isOwnProfile}>
       <div>
-        <ProfileHeader
-          user={user}
-          isOwnProfile={isOwnProfile}
-          onLogout={onLogout}
-          onFollow={handleFollow}
-        />
+        {profileHeader}
 
         <GlitchText
           as="h2"
