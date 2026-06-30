@@ -5,7 +5,7 @@ import { UserAvatar } from '../ui/UserAvatar';
 import { GlitchText } from '../ui/GlitchText';
 import { useUi } from '../../context/UiContext';
 import type { User } from '../../types';
-import { getPostsByUserId } from '../../data/mockData';
+
 import { getUserAccentColor } from '../../utils/userAccent';
 
 interface ProfileHeaderProps {
@@ -13,6 +13,8 @@ interface ProfileHeaderProps {
   isOwnProfile?: boolean;
   onLogout?: () => void;
   onFollow?: () => void;
+  postCount?: number;
+  totalLikes?: number;
 }
 
 export function ProfileHeader({
@@ -20,10 +22,10 @@ export function ProfileHeader({
   isOwnProfile = false,
   onLogout,
   onFollow,
+  postCount = 0,
+  totalLikes = 0,
 }: ProfileHeaderProps) {
   const { terminalMode } = useUi();
-  const userPosts = getPostsByUserId(user.id);
-  const totalLikes = userPosts.reduce((sum, p) => sum + (p.likes ?? 0), 0);
   const accentColor = getUserAccentColor(user.nickName);
 
   if (terminalMode) {
@@ -84,7 +86,7 @@ export function ProfileHeader({
           </div>
 
           <div className="profile-stats profile-stats--terminal mt-4 font-mono text-xs">
-            <span>posts:<strong className="text-[var(--green-light)]">{userPosts.length}</strong></span>
+            <span>posts:<strong className="text-[var(--green-light)]">{postCount}</strong></span>
             <span>++:<strong className="text-[var(--green-light)]">{totalLikes}</strong></span>
             <span>status:<strong className="text-[var(--cyan)]">online</strong></span>
             <span>peers:<strong className="text-[var(--text-muted)]">0</strong></span>
@@ -146,7 +148,7 @@ export function ProfileHeader({
 
         <div className="profile-stats mt-4">
           <div className="profile-stat">
-            <span className="profile-stat-value">{userPosts.length}</span>
+            <span className="profile-stat-value">{postCount}</span>
             <span className="profile-stat-label">posts</span>
           </div>
           <div className="profile-stat">

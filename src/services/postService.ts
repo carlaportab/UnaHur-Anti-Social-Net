@@ -37,6 +37,13 @@ export async function getPosts(): Promise<Post[]> {
   return data.map(mapPost);
 }
 
+export async function getPostsByUserId(userId: number): Promise<Post[]> {
+  const res = await fetch(`${BASE_URL}/posts?userId=${userId}`);
+  if (!res.ok) throw new Error('Error al obtener las publicaciones del usuario');
+  const data = await res.json();
+  return data.map(mapPost);
+}
+
 export async function getPostById(id: number): Promise<Post> {
   const res = await fetch(`${BASE_URL}/posts/${id}`);
   if (!res.ok) throw new Error('Post no encontrado');
