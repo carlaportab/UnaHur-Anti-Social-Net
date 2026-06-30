@@ -7,12 +7,12 @@ import { EmptyState } from '../components/ui/EmptyState';
 import { Button } from '../components/ui/Button';
 import { FeedLayout } from '../components/feed/FeedLayout';
 import { FeedComposeBox } from '../components/feed/FeedComposeBox';
+import { mockPosts, mockTags } from '../data/mockData';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { useTypingText } from '../hooks/useReducedMotion';
 import { GlitchLink, GlitchText } from '../components/ui/GlitchText';
 import { useUi } from '../context/UiContext';
-import { getPosts } from '../services/postService';
 import type { Post } from '../types';
 
 const TYPING_TEXT = '// La red social para los que prefieren el terminal';
@@ -21,22 +21,18 @@ export function Home() {
   const { isAuthenticated, user } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const typedText = useTypingText(TYPING_TEXT, 45);
-  const [posts, setPosts] = useState<Post[]>([]);
   const [localPosts, setLocalPosts] = useState<Post[]>([]);
 
   const { terminalMode } = useUi();
 
-  const allPosts = [...localPosts, ...posts].sort(
+  const allPosts = [...localPosts, ...mockPosts].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
 
   useEffect(() => {
-    getPosts()
-      .then(setPosts)
-      .catch(() => setError('No se pudo cargar el feed.'))
-      .finally(() => setLoading(false));
+    const loadTimer = setTimeout(() => setLoading(false), 900);
+    return () => clearTimeout(loadTimer);
   }, []);
 
   const handleQuickPost = (text: string) => {
@@ -46,7 +42,7 @@ export function Home() {
       description: text,
       userId: user.id,
       user,
-      tags: [],
+      tags: [mockTags[3]],
       commentCount: 0,
       createdAt: new Date().toISOString(),
       likes: 0,
@@ -57,6 +53,7 @@ export function Home() {
 
   return (
     <>
+      {/* Compact hero — smaller when logged in */}
       {!isAuthenticated ? (
         <section className="relative overflow-hidden border-b border-[var(--border)] dot-grid">
           <div className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
@@ -142,8 +139,6 @@ export function Home() {
               <SkeletonPost />
               <SkeletonPost />
             </div>
-          ) : error ? (
-            <EmptyState ascii="> error" title={error} />
           ) : allPosts.length === 0 ? (
             <EmptyState
               ascii="> feed vacío"

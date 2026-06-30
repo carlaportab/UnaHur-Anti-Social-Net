@@ -1,54 +1,22 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { GlitchText } from '../components/ui/GlitchText';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { PostDetailView } from '../components/posts/PostDetailView';
 import { ErrorPage } from '../components/ui/ErrorPage';
-import { SkeletonPost } from '../components/ui/SkeletonCard';
 import { useUi } from '../context/UiContext';
+import { getCommentsByPostId, getPostById } from '../data/mockData';
 import { useToast } from '../context/ToastContext';
-import { useAuth } from '../context/AuthContext';
-import { getPostById, getPostImages, getCommentsByPostId, createComment } from '../services/postService';
-import type { Comment, Post } from '../types';
 
 export function PostDetail() {
   const { toast } = useToast();
   const { terminalMode } = useUi();
-  const { user } = useAuth();
   const { id } = useParams<{ id: string }>();
-
-  const [post, setPost] = useState<Post | null>(null);
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
+  const post = getPostById(Number(id));
+  const comments = post ? getCommentsByPostId(post.id) : [];
   const [newComment, setNewComment] = useState('');
 
-  useEffect(() => {
-    if (!id) return;
-    const postId = Number(id);
-
-    Promise.all([
-      getPostById(postId),
-      getPostImages(postId),
-      getCommentsByPostId(postId),
-    ])
-      .then(([fetchedPost, images, fetchedComments]) => {
-        setPost({ ...fetchedPost, images });
-        setComments(fetchedComments);
-      })
-      .catch(() => setNotFound(true))
-      .finally(() => setLoading(false));
-  }, [id]);
-
-  if (loading) {
-    return (
-      <div className="mx-auto max-w-[680px] px-3 py-4 md:max-w-6xl sm:px-6 sm:py-6">
-        <SkeletonPost />
-      </div>
-    );
-  }
-
-  if (notFound || !post) {
+  if (!post) {
     return (
       <ErrorPage
         typingMessage="// Error 404: publicación no encontrada en el feed"
@@ -59,28 +27,16 @@ export function PostDetail() {
     );
   }
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!newComment.trim() || !user) return;
-
-    try {
-      const created = await createComment({
-        content: newComment.trim(),
-        userId: user.id,
-        postId: post.id,
-      });
-      setComments((prev) => [...prev, created]);
-      setPost((prev) => prev ? { ...prev, commentCount: prev.commentCount + 1 } : prev);
-      setNewComment('');
-      toast(
-        terminalMode
-          ? 'reply sent. exit 0.'
-          : 'Comentario enviado. Ignorar es opcional.',
-        'success',
-      );
-    } catch {
-      toast('No se pudo enviar el comentario.', 'error');
-    }
+    if (!newComment.trim()) return;
+    setNewComment('');
+    toast(
+      terminalMode
+        ? 'reply sent (mock). exit 0.'
+        : 'Comentario enviado (mock). Ignorar es opcional.',
+      'success',
+    );
   };
 
   const postLabel = terminalMode ? `> cat post/${post.id}` : `> post/${post.id}`;
