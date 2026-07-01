@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import type { Post } from '../../types';
 import { Badge } from '../ui/Badge';
 import { UserAvatar } from '../ui/UserAvatar';
-import { GlitchLink } from '../ui/GlitchText';
+import { GlitchLink, GlitchText } from '../ui/GlitchText';
 import { LazyImage } from '../ui/LazyImage';
 import { PostInteractionBar } from './PostInteractionBar';
 import { PostInlineComments } from './PostInlineComments';
@@ -127,7 +127,7 @@ export function PostCard({
                 post.tags.map((tag, i) => (
                   <Link key={tag.id} to={`/explorar?tag=${encodeURIComponent(tag.name)}`}>
                     <Badge variant={i % 2 === 0 ? 'green' : 'cyan'} compact>
-                      {tag.name}
+                      <GlitchText>{tag.name}</GlitchText>
                     </Badge>
                   </Link>
                 ))

@@ -68,7 +68,7 @@ export function QuickComposer({ onPost }: QuickComposerProps) {
   return (
     <div className="mb-4 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-surface)] p-3 sm:p-4">
       <div className="flex gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--green)] font-mono text-xs font-bold text-[var(--bg-base)]">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--green)] font-mono text-xs font-bold text-[var(--on-accent)]">
           {user.nickName.slice(0, 2).toUpperCase()}
         </div>
         <div className="min-w-0 flex-1">

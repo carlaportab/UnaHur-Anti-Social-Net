@@ -22,7 +22,7 @@ export function MobileBottomNav() {
 
   return (
     <nav
-      className="mobile-bottom-nav fixed bottom-0 left-0 right-0 z-50 border-t border-[var(--border)] bg-[var(--bg-base)]/95 backdrop-blur-xl md:hidden"
+      className="app-bottom-nav mobile-bottom-nav fixed bottom-0 left-0 right-0 z-50 border-t border-[var(--border)] bg-[var(--bg-base)]/95 backdrop-blur-xl md:hidden"
       aria-label="Navegación principal"
     >
       <div className="mx-auto grid max-w-lg grid-cols-5 items-end px-1 pb-[env(safe-area-inset-bottom,0px)]">
@@ -35,7 +35,7 @@ export function MobileBottomNav() {
                   onClick={() =>
                     isAuthenticated ? navigate('/nuevo-post') : navigate('/login')
                   }
-                  className="fab-btn flex h-12 w-12 -translate-y-2 items-center justify-center rounded-full bg-[var(--green)] font-bold text-[var(--bg-base)] shadow-[var(--glow-green)] transition-all duration-150 active:scale-90 active:shadow-none"
+                  className="fab-btn flex h-12 w-12 -translate-y-2 items-center justify-center rounded-full bg-[var(--green)] font-bold text-[var(--on-accent)] shadow-[var(--glow-green)] transition-all duration-150 active:scale-90 active:shadow-none"
                   aria-label="Nueva publicación"
                 >
                   <Plus size={22} strokeWidth={2.5} />

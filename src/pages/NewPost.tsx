@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useState, useEffect, useRef, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ImagePlus, Send, X } from 'lucide-react';
 import { Button } from '../components/ui/Button';
@@ -7,6 +7,8 @@ import { mockTags } from '../data/mockData';
 import { useToast } from '../context/ToastContext';
 import { GlitchText } from '../components/ui/GlitchText';
 import { useUi } from '../context/UiContext';
+
+const MAX_CHARS = 500;
 
 export function NewPost() {
   const navigate = useNavigate();
@@ -17,6 +19,28 @@ export function NewPost() {
   const [selectedTags, setSelectedTags] = useState<number[]>([]);
   const [descError, setDescError] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [counterGlitch, setCounterGlitch] = useState(false);
+  const glitchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const remaining = MAX_CHARS - description.length;
+  const isNearLimit = remaining <= 50;
+  const isOver = remaining < 0;
+
+  useEffect(() => {
+    if (isNearLimit && !isOver) {
+      // trigger a glitch burst every ~800ms when near limit
+      glitchTimerRef.current = setInterval(() => {
+        setCounterGlitch(true);
+        setTimeout(() => setCounterGlitch(false), 250);
+      }, 800);
+    } else {
+      if (glitchTimerRef.current) clearInterval(glitchTimerRef.current);
+      setCounterGlitch(false);
+    }
+    return () => {
+      if (glitchTimerRef.current) clearInterval(glitchTimerRef.current);
+    };
+  }, [isNearLimit, isOver]);
 
   const toggleTag = (tagId: number) => {
     setSelectedTags((prev) =>
@@ -154,11 +178,25 @@ export function NewPost() {
               {terminalMode && (
                 <p className="mt-1 font-mono text-[0.65rem] text-[var(--green-dim)]">EOF</p>
               )}
-              {descError && (
-                <p className="mt-1.5 font-mono text-xs text-[var(--red)]">
-                  {terminalMode ? 'stderr: description required' : 'La descripción es obligatoria'}
-                </p>
-              )}
+              <div className="mt-1.5 flex items-center justify-end gap-3">
+                {descError && (
+                  <p className="flex-1 font-mono text-xs text-[var(--red)]">
+                    {terminalMode ? 'stderr: description required' : 'La descripción es obligatoria'}
+                  </p>
+                )}
+                <span
+                  className={`font-mono text-[0.65rem] tabular-nums transition-colors ${
+                    isOver
+                      ? 'text-[var(--red)]'
+                      : isNearLimit
+                        ? 'text-[var(--amber)]'
+                        : 'text-[var(--text-muted)]'
+                  } ${counterGlitch ? 'glitch-hover' : ''}`}
+                  data-text={String(remaining)}
+                >
+                  {terminalMode ? `${remaining}b free` : `${remaining} restantes`}
+                </span>
+              </div>
             </div>
 
             <div>

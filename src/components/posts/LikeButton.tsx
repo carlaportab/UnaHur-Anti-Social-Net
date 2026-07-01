@@ -5,29 +5,43 @@ interface LikeButtonProps {
   initialCount: number;
 }
 
+const LIKE_CHARS = ['+', '>', '#', '!', '++', '^'];
+const UNLIKE_CHARS = ['-', '~', 'x', '--'];
+
+interface Particle {
+  id: number;
+  char: string;
+  x: number; // offset % from center
+  delay: number;
+}
+
 export function LikeButton({ initialCount }: LikeButtonProps) {
   const [count, setCount] = useState(initialCount);
   const [liked, setLiked] = useState(false);
   const [animating, setAnimating] = useState(false);
-  const [floatKey, setFloatKey] = useState(0);
-  const [floatDelta, setFloatDelta] = useState<1 | -1>(1);
+  const [particles, setParticles] = useState<Particle[]>([]);
+  const [particleKey, setParticleKey] = useState(0);
+
+  const spawnParticles = (isLike: boolean) => {
+    const chars = isLike ? LIKE_CHARS : UNLIKE_CHARS;
+    const count = 3 + Math.floor(Math.random() * 2); // 3 or 4
+    const newParticles: Particle[] = Array.from({ length: count }, (_, i) => ({
+      id: particleKey + i,
+      char: chars[Math.floor(Math.random() * chars.length)],
+      x: -30 + Math.random() * 60, // spread -30px to +30px
+      delay: i * 60,
+    }));
+    setParticleKey((k) => k + count);
+    setParticles(newParticles);
+    setTimeout(() => setParticles([]), 800);
+  };
 
   const handleToggle = () => {
-    if (liked) {
-      setLiked(false);
-      setCount((c) => Math.max(0, c - 1));
-      setFloatDelta(-1);
-      setFloatKey((k) => k + 1);
-      setAnimating(true);
-      window.setTimeout(() => setAnimating(false), 450);
-      return;
-    }
-
-    setLiked(true);
-    setCount((c) => c + 1);
-    setFloatDelta(1);
+    const nextLiked = !liked;
+    setLiked(nextLiked);
+    setCount((c) => (nextLiked ? c + 1 : Math.max(0, c - 1)));
     setAnimating(true);
-    setFloatKey((k) => k + 1);
+    spawnParticles(nextLiked);
     window.setTimeout(() => setAnimating(false), 450);
   };
 
@@ -48,16 +62,22 @@ export function LikeButton({ initialCount }: LikeButtonProps) {
         className={`shrink-0 transition-all ${liked ? 'fill-[var(--green)] text-[var(--green-light)]' : ''}`}
       />
       <span className={animating ? 'like-count-bump' : ''}>{count}</span>
-      {animating && (
+
+      {/* Partículas flotantes */}
+      {particles.map((p) => (
         <span
-          key={floatKey}
-          className={`like-float pointer-events-none absolute -top-1 left-1/2 font-mono text-xs font-bold ${
-            floatDelta > 0 ? 'text-[var(--green-light)]' : 'text-[var(--text-meta)]'
+          key={p.id}
+          className={`like-particle pointer-events-none absolute font-mono text-xs font-bold ${
+            liked ? 'text-[var(--green-light)]' : 'text-[var(--text-meta)]'
           }`}
+          style={{
+            left: `calc(50% + ${p.x}px)`,
+            animationDelay: `${p.delay}ms`,
+          }}
         >
-          {floatDelta > 0 ? '+1' : '-1'}
+          {p.char}
         </span>
-      )}
+      ))}
     </button>
   );
 }

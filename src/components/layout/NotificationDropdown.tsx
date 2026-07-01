@@ -206,7 +206,11 @@ function MobileNotificationSheet({
   );
 }
 
-export function NotificationDropdown() {
+interface NotificationDropdownProps {
+  variant?: 'default' | 'sidebar';
+}
+
+export function NotificationDropdown({ variant = 'default' }: NotificationDropdownProps) {
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState<AppNotification[]>(mockNotifications);
   const ref = useRef<HTMLDivElement>(null);
@@ -244,19 +248,36 @@ export function NotificationDropdown() {
 
   const close = () => setOpen(false);
 
+  const isSidebar = variant === 'sidebar';
+
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className={`relative ${isSidebar ? 'w-full' : ''}`}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="tap-target relative rounded-[var(--radius-sm)] p-2 text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]"
+        className={
+          isSidebar
+            ? `tap-target relative flex w-full items-center gap-3 rounded-[var(--radius-sm)] px-4 py-3 font-medium transition-colors duration-[var(--transition-fast)] ${
+                open
+                  ? 'bg-[rgba(63,184,80,0.1)] text-[var(--green-light)]'
+                  : 'text-[var(--text-secondary)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]'
+              }`
+            : 'tap-target relative rounded-[var(--radius-sm)] p-2 text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]'
+        }
         aria-label={unread > 0 ? `Notificaciones, ${unread} sin leer` : 'Notificaciones'}
         aria-expanded={open}
         aria-haspopup={isMobile ? 'dialog' : 'true'}
       >
-        <Bell size={20} />
+        <Bell size={20} strokeWidth={2} />
+        {isSidebar && <span>Notificaciones</span>}
         {unread > 0 && (
-          <span className="absolute right-0.5 top-0.5 flex h-[1.125rem] min-w-[1.125rem] items-center justify-center rounded-full bg-[var(--red)] px-0.5 font-mono text-[0.55rem] font-bold leading-none text-white ring-2 ring-[var(--bg-base)]">
+          <span
+            className={
+              isSidebar
+                ? 'ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--red)] px-1 font-mono text-[0.55rem] font-bold leading-none text-white'
+                : 'absolute right-0.5 top-0.5 flex h-[1.125rem] min-w-[1.125rem] items-center justify-center rounded-full bg-[var(--red)] px-0.5 font-mono text-[0.55rem] font-bold leading-none text-white ring-2 ring-[var(--bg-base)]'
+            }
+          >
             {unread > 9 ? '9+' : unread}
           </span>
         )}
@@ -280,7 +301,11 @@ export function NotificationDropdown() {
         </MobileNotificationSheet>
       ) : (
         open && (
-          <div className="absolute right-0 top-full z-50 mt-2 w-80 overflow-hidden rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-surface)] shadow-[var(--shadow-card)]">
+          <div
+            className={`absolute top-full z-50 mt-2 w-80 overflow-hidden rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-surface)] shadow-[var(--shadow-card)] ${
+              isSidebar ? 'left-0' : 'right-0'
+            }`}
+          >
             <NotificationList
               notifications={notifications}
               unread={unread}
