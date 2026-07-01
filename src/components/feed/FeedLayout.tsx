@@ -10,7 +10,13 @@ export function FeedLayout({ children, showSidebar = true }: FeedLayoutProps) {
   return (
     <div className="mx-auto max-w-7xl px-3 py-4 sm:px-6 sm:py-6 lg:px-8">
       <div className="flex gap-8">
-        <div className="min-w-0 flex-1 lg:max-w-[680px] lg:mx-auto xl:mx-0">
+        <div
+          className={`min-w-0 flex-1 ${
+            showSidebar
+              ? 'lg:max-w-[680px] lg:mx-auto xl:mx-0'
+              : 'max-w-[680px] mx-auto'
+          }`}
+        >
           {children}
         </div>
         {showSidebar && (

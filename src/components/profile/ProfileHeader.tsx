@@ -1,5 +1,4 @@
-import { Link } from 'react-router-dom';
-import { LogOut, Plus, UserPlus } from 'lucide-react';
+import { UserPlus } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { UserAvatar } from '../ui/UserAvatar';
 import { GlitchText } from '../ui/GlitchText';
@@ -11,14 +10,12 @@ import { getUserAccentColor } from '../../utils/userAccent';
 interface ProfileHeaderProps {
   user: User;
   isOwnProfile?: boolean;
-  onLogout?: () => void;
   onFollow?: () => void;
 }
 
 export function ProfileHeader({
   user,
   isOwnProfile = false,
-  onLogout,
   onFollow,
 }: ProfileHeaderProps) {
   const { terminalMode } = useUi();
@@ -60,27 +57,12 @@ export function ProfileHeader({
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-2">
-              {isOwnProfile ? (
-                <>
-                  <Link to="/nuevo-post">
-                    <Button className="!px-3 !py-1.5 font-mono text-xs">
-                      <Plus size={14} />
-                      nuevo_post
-                    </Button>
-                  </Link>
-                  <Button variant="danger" onClick={onLogout} className="!px-3 !py-1.5 font-mono text-xs">
-                    <LogOut size={14} />
-                    logout
-                  </Button>
-                </>
-              ) : (
-                <Button variant="secondary" onClick={onFollow} className="!px-3 !py-1.5 font-mono text-xs">
-                  <UserPlus size={14} />
-                  follow --mock
-                </Button>
-              )}
-            </div>
+            {!isOwnProfile && (
+              <Button variant="secondary" onClick={onFollow} className="!px-3 !py-1.5 font-mono text-xs">
+                <UserPlus size={14} />
+                follow --mock
+              </Button>
+            )}
           </div>
 
           <div className="profile-stats profile-stats--terminal mt-4 font-mono text-xs">
@@ -121,27 +103,14 @@ export function ProfileHeader({
             </div>
           </div>
 
-          <div className="flex flex-col gap-2 sm:flex-row sm:pb-1">
-            {isOwnProfile ? (
-              <>
-                <Link to="/nuevo-post">
-                  <Button className="w-full font-mono text-xs sm:w-auto">
-                    <Plus size={16} />
-                    Nueva publicación
-                  </Button>
-                </Link>
-                <Button variant="danger" onClick={onLogout} className="w-full font-mono text-xs sm:w-auto">
-                  <LogOut size={16} />
-                  Cerrar sesión
-                </Button>
-              </>
-            ) : (
+          {!isOwnProfile && (
+            <div className="sm:pb-1">
               <Button variant="secondary" onClick={onFollow} className="w-full font-mono text-xs sm:w-auto">
                 <UserPlus size={16} />
                 Seguir
               </Button>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         <div className="profile-stats mt-4">

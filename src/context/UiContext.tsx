@@ -7,15 +7,20 @@ interface UiContextType {
 
 const UiContext = createContext<UiContextType | null>(null);
 
-const STORAGE_KEY = 'antisocial-terminal-mode';
+const TERMINAL_STORAGE_KEY = 'antisocial-terminal-mode';
 
 export function UiProvider({ children }: { children: ReactNode }) {
   const [terminalMode, setTerminalMode] = useState(
-    () => sessionStorage.getItem(STORAGE_KEY) === 'true',
+    () => sessionStorage.getItem(TERMINAL_STORAGE_KEY) === 'true',
   );
 
   useEffect(() => {
-    sessionStorage.setItem(STORAGE_KEY, String(terminalMode));
+    document.documentElement.setAttribute('data-theme', 'dark');
+    localStorage.removeItem('antisocial-color-theme');
+  }, []);
+
+  useEffect(() => {
+    sessionStorage.setItem(TERMINAL_STORAGE_KEY, String(terminalMode));
     document.documentElement.classList.toggle('terminal-mode', terminalMode);
   }, [terminalMode]);
 

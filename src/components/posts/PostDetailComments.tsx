@@ -111,7 +111,7 @@ export function PostDetailComments({
             <button
               type="submit"
               disabled={!newComment.trim()}
-              className="post-detail-comment-submit self-end rounded-[var(--radius-sm)] bg-[var(--green)] px-4 py-2 font-mono text-xs font-semibold text-[var(--bg-base)] disabled:opacity-40"
+              className="post-detail-comment-submit self-end rounded-[var(--radius-sm)] bg-[var(--green)] px-4 py-2 font-mono text-xs font-semibold text-[var(--on-accent)] disabled:opacity-40"
             >
               Comentar
             </button>

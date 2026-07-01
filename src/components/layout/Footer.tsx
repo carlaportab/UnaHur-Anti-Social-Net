@@ -25,7 +25,7 @@ export function Footer({ className = '', variant = 'full' }: FooterProps) {
         <div className="flex flex-col items-center gap-6 text-center md:flex-row md:justify-between md:text-left">
           <div>
             <div className="mb-2 flex items-center justify-center gap-2 md:justify-start">
-              <div className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] bg-[var(--green)] font-display text-xs font-black text-[var(--bg-base)] shadow-[var(--glow-green)]">
+              <div className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] bg-[var(--green)] font-display text-xs font-black text-[var(--on-accent)] shadow-[var(--glow-green)]">
                 A
               </div>
               <div className="leading-tight text-left">

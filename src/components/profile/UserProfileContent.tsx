@@ -11,13 +11,11 @@ import { getPostsByUserId } from '../../data/mockData';
 interface UserProfileContentProps {
   user: User;
   isOwnProfile?: boolean;
-  onLogout?: () => void;
 }
 
 export function UserProfileContent({
   user,
   isOwnProfile = false,
-  onLogout,
 }: UserProfileContentProps) {
   const { toast } = useToast();
   const { terminalMode } = useUi();
@@ -33,7 +31,6 @@ export function UserProfileContent({
         <ProfileHeader
           user={user}
           isOwnProfile={isOwnProfile}
-          onLogout={onLogout}
           onFollow={handleFollow}
         />
 

@@ -57,7 +57,7 @@ export function SearchBar({ className = '', onNavigate }: SearchBarProps) {
             }}
             onFocus={() => setOpen(true)}
             placeholder="> buscar @user | #tag..."
-            className="w-full rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--bg-surface)] py-2 pl-9 pr-3 font-mono text-xs text-[var(--text-primary)] transition-colors placeholder:text-[var(--text-muted)] focus:border-[var(--border-green)] focus:outline-none focus:shadow-[var(--glow-green)] md:w-52 lg:w-64"
+            className="w-full rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--bg-surface)] py-2 pl-9 pr-3 font-mono text-xs text-[var(--text-primary)] transition-colors placeholder:text-[var(--text-muted)] focus:border-[var(--border-green)] focus:outline-none focus:shadow-[var(--glow-green)]"
           />
         </div>
       </form>

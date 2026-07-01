@@ -59,7 +59,7 @@ export function Register() {
     <div className="auth-page dot-grid-auth">
       <div className="auth-card glass-card pulse-card animate-fade-up">
         <div className="mb-6 text-center sm:mb-8">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-[var(--radius-sm)] bg-[var(--green)] font-display text-xl font-black text-[var(--bg-base)] shadow-[var(--glow-green)]">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-[var(--radius-sm)] bg-[var(--green)] font-display text-xl font-black text-[var(--on-accent)] shadow-[var(--glow-green)]">
               A
             </div>
             <GlitchText
@@ -98,7 +98,7 @@ export function Register() {
                       setErrors((prev) => ({ ...prev, nickName: false, server: '' }));
                     }}
                     placeholder="git_push_carla"
-                    className={`input-field pl-10 text-base sm:text-sm ${errors.nickName ? 'input-error' : ''}`}
+                    className={`input-field input-with-icon text-base sm:text-sm ${errors.nickName ? 'input-error' : ''}`}
                   />
                 </div>
                 {errors.nickName && (
@@ -122,7 +122,7 @@ export function Register() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="tu@email.com"
-                    className="input-field pl-10 text-base sm:text-sm"
+                    className="input-field input-with-icon text-base sm:text-sm"
                   />
                 </div>
               </div>
@@ -144,7 +144,7 @@ export function Register() {
                       setErrors((prev) => ({ ...prev, password: false }));
                     }}
                     placeholder="// contraseña universal"
-                    className={`input-field pl-11 text-base sm:text-sm ${errors.password ? 'input-error' : ''}`}
+                    className={`input-field input-with-icon text-base sm:text-sm ${errors.password ? 'input-error' : ''}`}
                   />
                 </div>
                 {errors.password && (
