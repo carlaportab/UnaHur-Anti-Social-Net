@@ -12,7 +12,7 @@ import { useToast } from '../context/ToastContext';
 import { useTypingText } from '../hooks/useReducedMotion';
 import { GlitchLink, GlitchText } from '../components/ui/GlitchText';
 import { useUi } from '../context/UiContext';
-import { getPosts } from '../services/postService';
+import { getPosts, createPost, createPostImage } from '../services/postService';
 import type { Post } from '../types';
 
 const TYPING_TEXT = '// La red social para los que prefieren el terminal';
@@ -24,13 +24,8 @@ export function Home() {
   const [error, setError] = useState<string | null>(null);
   const typedText = useTypingText(TYPING_TEXT, 45);
   const [posts, setPosts] = useState<Post[]>([]);
-  const [localPosts, setLocalPosts] = useState<Post[]>([]);
 
   const { terminalMode } = useUi();
-
-  const allPosts = [...localPosts, ...posts].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-  );
 
   useEffect(() => {
     getPosts()
@@ -39,20 +34,20 @@ export function Home() {
       .finally(() => setLoading(false));
   }, []);
 
-  const handleQuickPost = (text: string) => {
+  const handleQuickPost = async (text: string, imageUrl?: string, tagIds: number[] = []) => {
     if (!user) return;
-    const newPost: Post = {
-      id: Date.now(),
-      description: text,
-      userId: user.id,
-      user,
-      tags: [],
-      commentCount: 0,
-      createdAt: new Date().toISOString(),
-      likes: 0,
-    };
-    setLocalPosts((prev) => [newPost, ...prev]);
-    toast('Publicado. Nadie lo va a leer, pero quedó online.', 'success');
+    try {
+      const newPost = await createPost({ description: text, userId: user.id, tagIds });
+      newPost.user = user;
+      if (imageUrl) {
+        await createPostImage({ url: imageUrl, postId: newPost.id });
+        newPost.images = [imageUrl];
+      }
+      setPosts((prev) => [newPost, ...prev]);
+      toast('Publicado. Nadie lo va a leer, pero quedó online.', 'success');
+    } catch {
+      toast('Error al publicar. ¿Está el servidor corriendo?', 'error');
+    }
   };
 
   return (
@@ -144,7 +139,7 @@ export function Home() {
             </div>
           ) : error ? (
             <EmptyState ascii="> error" title={error} />
-          ) : allPosts.length === 0 ? (
+          ) : posts.length === 0 ? (
             <EmptyState
               ascii="> feed vacío"
               title="No hay publicaciones aún. Sé el primero. O no. Da igual."
@@ -154,7 +149,7 @@ export function Home() {
               className={`timeline-feed timeline-feed--continuous ${terminalMode ? 'timeline-feed--terminal' : ''}`}
             >
               <FeedComposeBox onPost={handleQuickPost} />
-              {allPosts.map((post, i) => (
+              {posts.map((post, i) => (
                 <PostFeedItem
                   key={post.id}
                   post={post}

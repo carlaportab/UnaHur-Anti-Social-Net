@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { ImagePlus, Send, X } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { ImageUrlPreview } from '../components/ui/ImageUrlPreview';
-import { mockTags } from '../data/mockData';
 import { useToast } from '../context/ToastContext';
 import { GlitchText } from '../components/ui/GlitchText';
 import { useUi } from '../context/UiContext';
+import { useAuth } from '../context/AuthContext';
+import { getTags, createPost, createPostImage } from '../services/postService';
+import type { Tag } from '../types';
 
 const MAX_CHARS = 500;
 
@@ -14,21 +16,33 @@ export function NewPost() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { terminalMode } = useUi();
+  const { user } = useAuth();
+
   const [description, setDescription] = useState('');
   const [imageUrls, setImageUrls] = useState<string[]>(['']);
   const [selectedTags, setSelectedTags] = useState<number[]>([]);
+  const [tags, setTags] = useState<Tag[]>([]);
+  const [tagsLoading, setTagsLoading] = useState(true);
   const [descError, setDescError] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [counterGlitch, setCounterGlitch] = useState(false);
-  const glitchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const glitchTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const remaining = MAX_CHARS - description.length;
   const isNearLimit = remaining <= 50;
   const isOver = remaining < 0;
 
+  // Cargar tags desde la API
+  useEffect(() => {
+    getTags()
+      .then(setTags)
+      .catch(() => toast('No se pudieron cargar las etiquetas.', 'error'))
+      .finally(() => setTagsLoading(false));
+  }, []);
+
+  // Glitch en el contador cuando se acerca al límite
   useEffect(() => {
     if (isNearLimit && !isOver) {
-      // trigger a glitch burst every ~800ms when near limit
       glitchTimerRef.current = setInterval(() => {
         setCounterGlitch(true);
         setTimeout(() => setCounterGlitch(false), 250);
@@ -49,44 +63,79 @@ export function NewPost() {
   };
 
   const addImageField = () => setImageUrls((prev) => [...prev, '']);
-
-  const removeImageField = (index: number) => {
-    setImageUrls((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const updateImageUrl = (index: number, value: string) => {
+  const removeImageField = (index: number) => setImageUrls((prev) => prev.filter((_, i) => i !== index));
+  const updateImageUrl = (index: number, value: string) =>
     setImageUrls((prev) => prev.map((url, i) => (i === index ? value : url)));
-  };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!description.trim()) {
       setDescError(true);
       toast('La descripción es obligatoria.', 'error');
       return;
     }
-    setSubmitted(true);
-    toast('Publicación creada (mock). Redirigiendo...', 'success');
-    setTimeout(() => navigate('/perfil'), 1500);
+    if (isOver) {
+      toast(`Máximo ${MAX_CHARS} caracteres.`, 'error');
+      return;
+    }
+    if (!user) return;
+
+    setSubmitting(true);
+    try {
+      // 1. Crear el post
+      const post = await createPost({
+        description: description.trim(),
+        userId: user.id,
+        tagIds: selectedTags,
+      });
+
+      // 2. Subir imágenes (solo URLs no vacías)
+      const validUrls = imageUrls.filter((url) => url.trim());
+      await Promise.all(
+        validUrls.map((url) => createPostImage({ url: url.trim(), postId: post.id })),
+      );
+
+      toast(
+        terminalMode ? 'exit 0 — post committed.' : 'Publicación creada. El mundo puede ignorarla.',
+        'success',
+      );
+      navigate(`/post/${post.id}`);
+    } catch (err) {
+      toast(
+        err instanceof Error ? err.message : 'Error al publicar. Revisá que el servidor esté corriendo.',
+        'error',
+      );
+      setSubmitting(false);
+    }
   };
 
-  const tagButtons = mockTags.map((tag) => {
-    const selected = selectedTags.includes(tag.id);
-    return (
-      <button
-        key={tag.id}
-        type="button"
-        onClick={() => toggleTag(tag.id)}
-        className={`rounded-full border px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider transition-all duration-[var(--transition-fast)] sm:py-1.5 ${
-          selected
-            ? 'border-[var(--border-green)] bg-[var(--green-dim)]/40 text-[var(--green-light)] shadow-[var(--glow-green)]'
-            : 'border-[var(--border)] bg-[var(--bg-surface-2)] text-[var(--text-meta)] hover:border-[var(--border-hover)] hover:text-[var(--text-secondary)]'
-        }`}
-      >
-        {tag.name}
-      </button>
-    );
-  });
+  const tagButtons = tagsLoading ? (
+    <p className="font-mono text-xs text-[var(--text-muted)]">
+      {terminalMode ? '// loading tags...' : 'Cargando etiquetas...'}
+    </p>
+  ) : tags.length === 0 ? (
+    <p className="font-mono text-xs text-[var(--text-muted)]">
+      {terminalMode ? '// no tags found' : 'No hay etiquetas disponibles'}
+    </p>
+  ) : (
+    tags.map((tag) => {
+      const selected = selectedTags.includes(tag.id);
+      return (
+        <button
+          key={tag.id}
+          type="button"
+          onClick={() => toggleTag(tag.id)}
+          className={`rounded-full border px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider transition-all duration-[var(--transition-fast)] sm:py-1.5 ${
+            selected
+              ? 'border-[var(--border-green)] bg-[var(--green-dim)]/40 text-[var(--green-light)] shadow-[var(--glow-green)]'
+              : 'border-[var(--border)] bg-[var(--bg-surface-2)] text-[var(--text-meta)] hover:border-[var(--border-hover)] hover:text-[var(--text-secondary)]'
+          }`}
+        >
+          {tag.name}
+        </button>
+      );
+    })
+  );
 
   const imageFields = imageUrls.map((url, index) => (
     <div key={index} className="flex gap-2">
@@ -137,100 +186,97 @@ export function NewPost() {
           </>
         )}
 
-        {submitted ? (
-          <div className={terminalMode ? 'terminal-panel p-8 text-center' : 'glass-card p-8 text-center'}>
-            <p className="font-mono text-[var(--emerald)]">
-              {terminalMode ? 'exit 0 — redirect /perfil' : 'Publicación creada (mock). Redirigiendo al perfil...'}
-            </p>
-          </div>
-        ) : (
-          <form
-            onSubmit={handleSubmit}
-            className={
-              terminalMode
-                ? 'terminal-panel space-y-6 p-4 sm:p-6'
-                : 'rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--bg-surface)] p-4 sm:p-8'
-            }
-          >
-            <div>
-              <label className="mb-2 block font-mono text-xs text-[var(--text-meta)]">
-                {terminalMode ? 'description * (required)' : 'descripción *'}
-              </label>
-              {terminalMode && (
-                <p className="mb-2 font-mono text-[0.65rem] text-[var(--green-dim)]">
-                  {'$ cat << EOF'}
+        <form
+          onSubmit={handleSubmit}
+          className={
+            terminalMode
+              ? 'terminal-panel space-y-6 p-4 sm:p-6'
+              : 'rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--bg-surface)] p-4 sm:p-8'
+          }
+        >
+          {/* Descripción */}
+          <div>
+            <label className="mb-2 block font-mono text-xs text-[var(--text-meta)]">
+              {terminalMode ? 'description * (required)' : 'descripción *'}
+            </label>
+            {terminalMode && (
+              <p className="mb-2 font-mono text-[0.65rem] text-[var(--green-dim)]">
+                {'$ cat << EOF'}
+              </p>
+            )}
+            <textarea
+              value={description}
+              onChange={(e) => {
+                setDescription(e.target.value);
+                setDescError(false);
+              }}
+              rows={6}
+              placeholder={
+                terminalMode
+                  ? '# escribí acá. sin socializar.'
+                  : 'Contá algo técnico, friki o existencial...'
+              }
+              className={`input-field resize-none font-mono text-base sm:text-sm ${descError ? 'input-error' : ''}`}
+            />
+            {terminalMode && (
+              <p className="mt-1 font-mono text-[0.65rem] text-[var(--green-dim)]">EOF</p>
+            )}
+            <div className="mt-1.5 flex items-center justify-end gap-3">
+              {descError && (
+                <p className="flex-1 font-mono text-xs text-[var(--red)]">
+                  {terminalMode ? 'stderr: description required' : 'La descripción es obligatoria'}
                 </p>
               )}
-              <textarea
-                value={description}
-                onChange={(e) => {
-                  setDescription(e.target.value);
-                  setDescError(false);
-                }}
-                rows={6}
-                placeholder={
-                  terminalMode
-                    ? '# escribí acá. sin socializar.'
-                    : 'Contá algo técnico, friki o existencial...'
-                }
-                className={`input-field resize-none font-mono text-base sm:text-sm ${descError ? 'input-error' : ''}`}
-              />
-              {terminalMode && (
-                <p className="mt-1 font-mono text-[0.65rem] text-[var(--green-dim)]">EOF</p>
-              )}
-              <div className="mt-1.5 flex items-center justify-end gap-3">
-                {descError && (
-                  <p className="flex-1 font-mono text-xs text-[var(--red)]">
-                    {terminalMode ? 'stderr: description required' : 'La descripción es obligatoria'}
-                  </p>
-                )}
-                <span
-                  className={`font-mono text-[0.65rem] tabular-nums transition-colors ${
-                    isOver
-                      ? 'text-[var(--red)]'
-                      : isNearLimit
-                        ? 'text-[var(--amber)]'
-                        : 'text-[var(--text-muted)]'
-                  } ${counterGlitch ? 'glitch-hover' : ''}`}
-                  data-text={String(remaining)}
-                >
-                  {terminalMode ? `${remaining}b free` : `${remaining} restantes`}
-                </span>
-              </div>
+              <span
+                className={`font-mono text-[0.65rem] tabular-nums transition-colors ${
+                  isOver
+                    ? 'text-[var(--red)]'
+                    : isNearLimit
+                      ? 'text-[var(--amber)]'
+                      : 'text-[var(--text-muted)]'
+                } ${counterGlitch ? 'glitch-hover' : ''}`}
+                data-text={String(remaining)}
+              >
+                {terminalMode ? `${remaining}b free` : `${remaining} restantes`}
+              </span>
             </div>
+          </div>
 
-            <div>
-              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                <label className="font-mono text-xs text-[var(--text-meta)]">
-                  {terminalMode ? 'attachments[] (optional)' : 'urls_de_imágenes (opcional)'}
-                </label>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={addImageField}
-                  className="!px-3 !py-2 font-mono text-xs"
-                >
-                  <ImagePlus size={14} />
-                  {terminalMode ? 'push url' : 'Agregar imagen'}
-                </Button>
-              </div>
-              <div className="space-y-2">{imageFields}</div>
-              <ImageUrlPreview urls={imageUrls} />
-            </div>
-
-            <div>
-              <label className="mb-3 block font-mono text-xs text-[var(--text-meta)]">
-                {terminalMode ? 'tags --select' : 'etiquetas'}
+          {/* Imágenes */}
+          <div>
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+              <label className="font-mono text-xs text-[var(--text-meta)]">
+                {terminalMode ? 'attachments[] (optional)' : 'urls_de_imágenes (opcional)'}
               </label>
-              <div className="flex flex-wrap gap-2">{tagButtons}</div>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={addImageField}
+                className="!px-3 !py-2 font-mono text-xs"
+              >
+                <ImagePlus size={14} />
+                {terminalMode ? 'push url' : 'Agregar imagen'}
+              </Button>
             </div>
+            <div className="space-y-2">{imageFields}</div>
+            <ImageUrlPreview urls={imageUrls} />
+          </div>
 
-            <Button type="submit" className="w-full font-mono">
-              <Send size={16} />
-              {terminalMode ? 'git push origin main' : 'Publicar'}
-            </Button>
-          </form>
-        )}
+          {/* Tags */}
+          <div>
+            <label className="mb-3 block font-mono text-xs text-[var(--text-meta)]">
+              {terminalMode ? 'tags --select' : 'etiquetas'}
+            </label>
+            <div className="flex flex-wrap gap-2">{tagButtons}</div>
+          </div>
+
+          <Button type="submit" className="w-full font-mono" disabled={submitting || isOver}>
+            <Send size={16} />
+            {submitting
+              ? terminalMode ? 'pushing...' : 'Publicando...'
+              : terminalMode ? 'git push origin main' : 'Publicar'}
+          </Button>
+        </form>
       </div>
     </div>
   );

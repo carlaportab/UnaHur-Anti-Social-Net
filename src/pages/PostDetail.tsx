@@ -69,6 +69,8 @@ export function PostDetail() {
         userId: user.id,
         postId: post.id,
       });
+      // La API no siempre devuelve el User poblado, lo adjuntamos del contexto
+      if (!created.user) created.user = user;
       setComments((prev) => [...prev, created]);
       setPost((prev) => prev ? { ...prev, commentCount: prev.commentCount + 1 } : prev);
       setNewComment('');

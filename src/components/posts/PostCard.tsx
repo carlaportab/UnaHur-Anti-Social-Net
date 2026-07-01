@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import type { Post } from '../../types';
+import { useState, useEffect } from 'react';
+import type { Post, Comment } from '../../types';
 import { Badge } from '../ui/Badge';
 import { UserAvatar } from '../ui/UserAvatar';
 import { GlitchLink, GlitchText } from '../ui/GlitchText';
@@ -8,7 +9,8 @@ import { PostInteractionBar } from './PostInteractionBar';
 import { PostInlineComments } from './PostInlineComments';
 import { useUi } from '../../context/UiContext';
 import { formatTimeAgo } from '../../utils/time';
-import { getCommentsByPostId } from '../../data/mockData';
+import { getCommentsByPostId, createComment } from '../../services/postService';
+import { useAuth } from '../../context/AuthContext';
 import { getUserAccentColor } from '../../utils/userAccent';
 
 interface PostCardProps {
@@ -25,12 +27,27 @@ export function PostCard({
   className = '',
 }: PostCardProps) {
   const { terminalMode } = useUi();
+  const { user } = useAuth();
   const nickName = post.user?.nickName ?? 'anon';
   const career = post.user?.career;
   const accentColor = getUserAccentColor(nickName);
-  const comments = getCommentsByPostId(post.id);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [commentCount, setCommentCount] = useState(post.commentCount);
   const likes = post.likes ?? Math.floor(post.id * 3 + 2);
   const time = formatTimeAgo(post.createdAt);
+
+  useEffect(() => {
+    if (!showInlineComments) return;
+    getCommentsByPostId(post.id).then(setComments).catch(() => {});
+  }, [post.id, showInlineComments]);
+
+  const handleComment = async (content: string) => {
+    if (!user) return;
+    const created = await createComment({ content, userId: user.id, postId: post.id });
+    if (!created.user) created.user = user;
+    setComments((prev) => [...prev, created]);
+    setCommentCount((n) => n + 1);
+  };
 
   return (
     <article
@@ -140,14 +157,15 @@ export function PostCard({
       <PostInteractionBar
         postId={post.id}
         likeCount={likes}
-        commentCount={post.commentCount}
+        commentCount={commentCount}
       />
 
       {showInlineComments && (
         <PostInlineComments
           postId={post.id}
           comments={comments}
-          totalCount={post.commentCount}
+          totalCount={commentCount}
+          onComment={handleComment}
         />
       )}
     </article>

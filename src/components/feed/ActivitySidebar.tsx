@@ -1,8 +1,10 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { GlitchLink, GlitchText } from '../ui/GlitchText';
 import { MessageCircle, Star, User } from 'lucide-react';
-import type { User as UserType } from '../../types';
-import { getLatestComments, mockTags, mockUsers } from '../../data/mockData';
+import type { Tag, User as UserType } from '../../types';
+import { getLatestComments, mockUsers } from '../../data/mockData';
+import { getTags } from '../../services/postService';
 import { useUi } from '../../context/UiContext';
 
 interface ActivitySidebarProps {
@@ -12,6 +14,11 @@ interface ActivitySidebarProps {
 export function ActivitySidebar({ className = '' }: ActivitySidebarProps) {
   const { terminalMode } = useUi();
   const latestComments = getLatestComments(5);
+  const [tags, setTags] = useState<Tag[]>([]);
+
+  useEffect(() => {
+    getTags().then(setTags).catch(() => {});
+  }, []);
 
   if (terminalMode) {
     return (
@@ -39,13 +46,13 @@ export function ActivitySidebar({ className = '' }: ActivitySidebarProps) {
           </ul>
         </div>
 
-        {/* tags como flags */}
+        {/* tags reales */}
         <div className="terminal-panel overflow-hidden">
           <div className="border-b border-[var(--border-green)]/40 px-3 py-2 text-[0.6rem] text-[var(--green-dim)]">
             <GlitchText>{'> grep -r "#" /tags'}</GlitchText>
           </div>
           <div className="flex flex-wrap gap-1.5 p-3">
-            {mockTags.map((tag) => (
+            {tags.map((tag) => (
               <Link
                 key={tag.id}
                 to={`/explorar?tag=${encodeURIComponent(tag.name)}`}
@@ -86,12 +93,12 @@ export function ActivitySidebar({ className = '' }: ActivitySidebarProps) {
           </ul>
         </div>
 
-        {/* stats como output de comando */}
+        {/* stats */}
         <div className="terminal-panel px-3 py-3">
           <GlitchText className="mb-2 text-[0.6rem] text-[var(--green-dim)]">{'> uptime --stats'}</GlitchText>
           <div className="space-y-1 text-[var(--text-muted)]">
             <p><span className="text-[var(--green-dim)]">users:</span> <span className="text-[var(--green-light)]">{mockUsers.length}</span> online</p>
-            <p><span className="text-[var(--green-dim)]">msgs:</span> <span className="text-[var(--cyan)]">{latestComments.length}+</span> recientes</p>
+            <p><span className="text-[var(--green-dim)]">tags:</span> <span className="text-[var(--cyan)]">{tags.length}</span> activas</p>
             <p><span className="text-[var(--green-dim)]">friends:</span> <span className="text-[var(--amber)]">0</span> required</p>
           </div>
           <p className="mt-2 text-[0.55rem] text-[var(--green-dim)]/60">// system nominal · no errors</p>
@@ -126,7 +133,7 @@ export function ActivitySidebar({ className = '' }: ActivitySidebarProps) {
 
       <Widget title="tags_trending">
         <div className="flex flex-wrap gap-1.5">
-          {mockTags.map((tag) => (
+          {tags.map((tag) => (
             <Link
               key={tag.id}
               to={`/explorar?tag=${encodeURIComponent(tag.name)}`}
@@ -170,7 +177,7 @@ export function ActivitySidebar({ className = '' }: ActivitySidebarProps) {
           </p>
           <p className="flex items-center gap-2">
             <MessageCircle size={12} className="text-[var(--cyan)]" />
-            {latestComments.length}+ comentarios recientes
+            {tags.length} tags activas
           </p>
           <p className="flex items-center gap-2">
             <Star size={12} className="text-[var(--amber)]" />

@@ -86,3 +86,32 @@ export async function getTags(): Promise<Tag[]> {
   if (!res.ok) throw new Error('Error al obtener etiquetas');
   return res.json();
 }
+
+export async function createPost(data: {
+  description: string;
+  userId: number;
+  tagIds: number[];
+}): Promise<Post> {
+  const res = await fetch(`${BASE_URL}/posts`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.error ?? 'No se pudo crear la publicación');
+  }
+  return mapPost(await res.json());
+}
+
+export async function createPostImage(data: {
+  url: string;
+  postId: number;
+}): Promise<void> {
+  const res = await fetch(`${BASE_URL}/postimages`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('No se pudo subir la imagen');
+}
