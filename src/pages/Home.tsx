@@ -34,7 +34,8 @@ export function Home() {
       .finally(() => setLoading(false));
   }, []);
 
-  const handleQuickPost = async (text: string, imageUrl?: string, tagIds: number[] = []) => {
+  const handleQuickPost = async (text: string, imageUrl?: string) => {
+    const tagIds: number[] = [];
     if (!user) return;
     try {
       const newPost = await createPost({ description: text, userId: user.id, tagIds });

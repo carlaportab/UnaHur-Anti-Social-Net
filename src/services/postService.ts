@@ -81,10 +81,22 @@ export async function createComment(data: {
   return mapComment(await res.json());
 }
 
+const FALLBACK_TAGS: Tag[] = [
+  { id: 1, name: 'tech' },
+  { id: 2, name: 'linux' },
+  { id: 3, name: 'gaming' },
+  { id: 4, name: 'random' },
+  { id: 5, name: 'unahur' },
+  { id: 6, name: 'codigo' },
+  { id: 7, name: 'javascript' },
+  { id: 8, name: 'python' },
+];
+
 export async function getTags(): Promise<Tag[]> {
   const res = await fetch(`${BASE_URL}/tags`);
-  if (!res.ok) throw new Error('Error al obtener etiquetas');
-  return res.json();
+  if (!res.ok) return FALLBACK_TAGS;
+  const data: Tag[] = await res.json();
+  return data.length > 0 ? data : FALLBACK_TAGS;
 }
 
 export async function createPost(data: {
